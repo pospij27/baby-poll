@@ -465,12 +465,12 @@ async function submitVote() {
       ${bNames.length?`<p style="margin-top:4px;"><strong>${t('boyNamesRow')}:</strong> ${bNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
     `;
     const wantsReveal = document.getElementById('reveal-checkbox').checked;
-    lastSubmittedGender = gender;
+    lastSubmittedGender = 'girl';
     lastWantsReveal = wantsReveal;
     const revealEl = document.getElementById('reveal-result');
     if (wantsReveal) {
-      revealEl.textContent = gender==='girl' ? t('revealGirl') : t('revealBoy');
-      revealEl.className = 'reveal-result ' + gender;
+      revealEl.textContent = t('revealGirl');
+      revealEl.className = 'reveal-result girl';
       revealEl.style.display = 'block';
     } else {
       revealEl.style.display = 'none';
