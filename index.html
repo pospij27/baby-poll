@@ -102,6 +102,7 @@
   <button class="lang-btn active-lang" onclick="setLang('en')">🇬🇧 EN</button>
   <button class="lang-btn" onclick="setLang('cs')">🇨🇿 CS</button>
   <button class="lang-btn" onclick="setLang('uk')">🇺🇦 UA</button>
+  <button class="lang-btn" onclick="setLang('no')">🇳🇴 NO</button>
 </div>
 
 <!-- VOTE -->
@@ -352,6 +353,37 @@ const i18n = {
     revealGirl:"Це дівчинка! 👧", revealBoy:"Це хлопчик! 👦",
     statsLocked:"Спочатку надішли свій прогноз, щоб переглянути статистику!",
     statsWarning:"⚠ Будь ласка, спочатку надішли свій прогноз, перш ніж дивитися статистику!",
+  },
+  no: {
+    title:"Hvem kommer til verden?",
+    nameHeading:"Ditt navn", nameLabel:"Hva heter du?", namePlaceholder:"Skriv inn navnet ditt",
+    genderHeading:"Hva tror du?", girlBtn:"👧 Jente", boyBtn:"👦 Gutt",
+    dateHeading:"Gjett fødselsdatoen", dateLabel:"Tips: terminen er 17. oktober",
+    namesHeading:"Foreslå navn", namesSub:"Opptil 3 navn per kjønn (valgfritt)",
+    girlNamesLbl:"👧 Jentenavn", boyNamesLbl:"👦 Guttenavn",
+    submitBtn:"Send inn gjetningen", statsLink:"Se statistikk →", adminLink:"Adminpålogging",
+    thanksTitle:"Takk for at du deltok!", thanksSub:"Gjetningen din er registrert. Sjekk inn igjen for å se resultatene!",
+    seeStatsBtn:"Se live-statistikk", anotherBtn:"← Gjett igjen",
+    statsTitle:"Live-statistikk", totalGuesses:"Totalt antall gjetninger", splitLabel:"Gjettet riktig",
+    genderPred:"Kjønnsprediksjoner", dateGuessesTitle:"Populære datoer",
+    namesTitle:"Foreslåtte navn", tabGirl:"👧 Jenter", tabBoy:"👦 Gutter",
+    backBtn:"← Tilbake", adminLoginTitle:"Adminpålogging", adminLoginSub:"Kun for foreldre — se alle oppføringer med detaljer.",
+    pwLabel:"Passord", pwPlaceholder:"Skriv inn adminpassord", pwError:"Feil passord",
+    loginBtn:"Logg inn", back2:"← Tilbake", adminTitle:"Adminvisning", logoutBtn:"Logg ut",
+    allEntries:"Alle oppføringer", exportTitle:"Eksport", exportSub:"Kopier alle svar som CSV.",
+    exportBtn:"Kopier CSV til utklippstavle", copied:"Kopiert!", dangerTitle:"Faresone",
+    dangerSub:"Slett alle oppføringer (kan ikke angres).", clearBtn:"Slett alle oppføringer",
+    noEntries:"Ingen oppføringer ennå.", noNames:"Ingen navn foreslått ennå.", noDateGuesses:"Ingen gjetninger ennå.",
+    errorName:"Vennligst skriv inn navnet ditt.", errorGender:"Vennligst velg et kjønn.", errorDate:"Vennligst velg en dato.",
+    girlNamesRow:"Jentenavn", boyNamesRow:"Guttenavn", nameRow:"Navn",
+    dateRow:"Datogjetting", submittedAt:"Sendt inn",
+    voteLabel: n=>`Oppføring #${n}`, confirmClear:"Slette ALLE oppføringer? Dette kan ikke angres.",
+    yourGuess:"Din gjetning", votes: c=>`${c} stemme${c===1?'':'r'}`,
+    totalEntries:"Totalt antall oppføringer", girlBoyVotes:"Jente / Gutt", loading:"Laster…", saving:"Lagrer…",
+    revealLabel:"Jeg vil vite kjønnet", revealHint:"Kjønnet avsløres etter innsending.",
+    revealGirl:"Det er en jente! 👧", revealBoy:"Det er en gutt! 👦",
+    statsLocked:"Send inn gjetningen din først for å se statistikken!",
+    statsWarning:"⚠ Vennligst send inn gjetningen din før du ser på statistikken!",
   }
 };
 
