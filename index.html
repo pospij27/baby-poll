@@ -168,7 +168,8 @@
   <button class="btn primary" id="submit-btn" onclick="submitVote()">
     <span id="t-submit-btn"></span>
   </button>
-  <button class="nav-link" id="t-stats-link" onclick="showStats()" style="display:none;"></button>
+  <button class="nav-link" id="t-stats-link" onclick="showStats()"></button>
+  <p id="t-stats-warning" style="font-size:11px; color:var(--text3); text-align:center; margin-top:4px;"></p>
   <button class="nav-link" id="t-admin-link" onclick="showAdminLogin()"></button>
 </div>
 
@@ -288,6 +289,7 @@ const i18n = {
     revealLabel:"I want to know the gender", revealHint:"The gender will be revealed after submitting.",
     revealGirl:"It's a girl! 👧", revealBoy:"It's a boy! 👦",
     statsLocked:"Submit your guess first to view the stats!",
+    statsWarning:"⚠ Please submit your guess before looking at the stats!",
   },
   cs: {
     title:"Kdo přijde na svět?",
@@ -318,6 +320,7 @@ const i18n = {
     revealLabel:"Chci znát pohlaví", revealHint:"Pohlaví se zobrazí po odeslání.",
     revealGirl:"Je to holčička! 👧", revealBoy:"Je to klouček! 👦",
     statsLocked:"Nejdřív odešli svůj tip, pak uvidíš statistiky!",
+    statsWarning:"⚠ Prosím, nejdřív odešli svůj tip, než se podíváš na statistiky!",
   },
   uk: {
     title:"Хто до нас іде?",
@@ -348,6 +351,7 @@ const i18n = {
     revealLabel:"Хочу дізнатися стать", revealHint:"Стать буде показана після надсилання.",
     revealGirl:"Це дівчинка! 👧", revealBoy:"Це хлопчик! 👦",
     statsLocked:"Спочатку надішли свій прогноз, щоб переглянути статистику!",
+    statsWarning:"⚠ Будь ласка, спочатку надішли свій прогноз, перш ніж дивитися статистику!",
   }
 };
 
@@ -373,6 +377,7 @@ function applyTranslations() {
     ['t-all-entries','allEntries'],['t-export-title','exportTitle'],['t-export-sub','exportSub'],
     ['t-export-btn','exportBtn'],['t-danger-title','dangerTitle'],['t-danger-sub','dangerSub'],['t-clear-btn','clearBtn'],
     ['t-reveal-label','revealLabel'],['t-reveal-hint','revealHint'],
+    ['t-stats-warning','statsWarning'],
   ];
   ids.forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=t(key); });
   const np=document.getElementById('guess-name'); if(np) np.placeholder=t('namePlaceholder');
@@ -387,7 +392,7 @@ function setLang(l) {
   applyTranslations();
   const revealEl = document.getElementById('reveal-result');
   if (lastWantsReveal && lastSubmittedGender && revealEl.style.display === 'block') {
-    revealEl.textContent = t('revealGirl');
+    revealEl.textContent = t('revealBoy');
   }
   if (document.getElementById('screen-stats').classList.contains('active') && window._statsEntries) {
     renderStats(window._statsEntries);
@@ -482,8 +487,8 @@ async function submitVote() {
     document.getElementById('t-stats-link').style.display = 'block';
     const revealEl = document.getElementById('reveal-result');
     if (wantsReveal) {
-      revealEl.textContent = t('revealGirl');
-      revealEl.className = 'reveal-result girl';
+      revealEl.textContent = t('revealBoy');
+      revealEl.className = 'reveal-result boy';
       revealEl.style.display = 'block';
     } else {
       revealEl.style.display = 'none';
@@ -502,7 +507,6 @@ function showVote() { showScreen('screen-vote'); resetVoteForm(); }
 function showAdminLogin() { showScreen('screen-admin-login'); }
 
 async function showStats() {
-  if (!hasSubmitted) { showToast(t('statsLocked')); return; }
   showScreen('screen-stats');
   document.getElementById('stats-metrics').innerHTML=`<div class="metric"><div class="val">…</div><div class="lbl">${t('loading')}</div></div>`;
   try {
