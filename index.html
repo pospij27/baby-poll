@@ -164,7 +164,7 @@
   <button class="btn primary" id="submit-btn" onclick="submitVote()">
     <span id="t-submit-btn"></span>
   </button>
-  <button class="nav-link" id="t-stats-link" onclick="showStats()"></button>
+  <button class="nav-link" id="t-stats-link" onclick="showStats()" style="display:none;"></button>
   <button class="nav-link" id="t-admin-link" onclick="showAdminLogin()"></button>
 </div>
 
@@ -252,6 +252,7 @@ let lang = 'en';
 let currentNamesTab = 'girl';
 let lastSubmittedGender = null;
 let lastWantsReveal = false;
+let hasSubmitted = false;
 
 const i18n = {
   en: {
@@ -282,6 +283,7 @@ const i18n = {
     totalEntries:"Total entries", girlBoyVotes:"Girl / Boy votes", loading:"Loading…", saving:"Saving…",
     revealLabel:"I want to know the gender", revealHint:"The gender will be revealed after submitting.",
     revealGirl:"It's a girl! 👧", revealBoy:"It's a boy! 👦",
+    statsLocked:"Submit your guess first to view the stats!",
   },
   cs: {
     title:"Kdo přijde na svět?",
@@ -311,6 +313,7 @@ const i18n = {
     totalEntries:"Celkem záznamů", girlBoyVotes:"Holčička / Klouček", loading:"Načítám…", saving:"Ukládám…",
     revealLabel:"Chci znát pohlaví", revealHint:"Pohlaví se zobrazí po odeslání.",
     revealGirl:"Je to holčička! 👧", revealBoy:"Je to klouček! 👦",
+    statsLocked:"Nejdřív odešli svůj tip, pak uvidíš statistiky!",
   },
   uk: {
     title:"Хто до нас іде?",
@@ -340,6 +343,7 @@ const i18n = {
     totalEntries:"Всього записів", girlBoyVotes:"Дівчинка / Хлопчик", loading:"Завантаження…", saving:"Збереження…",
     revealLabel:"Хочу дізнатися стать", revealHint:"Стать буде показана після надсилання.",
     revealGirl:"Це дівчинка! 👧", revealBoy:"Це хлопчик! 👦",
+    statsLocked:"Спочатку надішли свій прогноз, щоб переглянути статистику!",
   }
 };
 
@@ -470,6 +474,8 @@ async function submitVote() {
     const wantsReveal = document.getElementById('reveal-checkbox').checked;
     lastSubmittedGender = 'girl';
     lastWantsReveal = wantsReveal;
+    hasSubmitted = true;
+    document.getElementById('t-stats-link').style.display = 'block';
     const revealEl = document.getElementById('reveal-result');
     if (wantsReveal) {
       revealEl.textContent = t('revealGirl');
@@ -492,6 +498,7 @@ function showVote() { showScreen('screen-vote'); resetVoteForm(); }
 function showAdminLogin() { showScreen('screen-admin-login'); }
 
 async function showStats() {
+  if (!hasSubmitted) { showToast(t('statsLocked')); return; }
   showScreen('screen-stats');
   document.getElementById('stats-metrics').innerHTML=`<div class="metric"><div class="val">…</div><div class="lbl">${t('loading')}</div></div>`;
   try {
