@@ -101,7 +101,6 @@
   <div class="hero">
     <div class="hero-emoji">👶</div>
     <h1 id="t-title"></h1>
-    <p id="t-subtitle" style="margin-bottom:1rem;"></p>
   </div>
 
   <div class="card" id="card-name">
@@ -237,7 +236,7 @@ let currentNamesTab = 'girl';
 
 const i18n = {
   en: {
-    title:"Baby pool", subtitle:"Cast your guess for our new arrival!",
+    title:"Guess who's coming!",
     nameHeading:"Your name", nameLabel:"What's your name?", namePlaceholder:"Enter your name",
     genderHeading:"What's your guess?", girlBtn:"👧 Girl", boyBtn:"👦 Boy",
     dateHeading:"Guess the delivery date", dateLabel:"When do you think baby will arrive?",
@@ -264,10 +263,10 @@ const i18n = {
     totalEntries:"Total entries", girlBoyVotes:"Girl / Boy votes", loading:"Loading…", saving:"Saving…",
   },
   cs: {
-    title:"Soutěž o mimino", subtitle:"Tipni si, kdo přichází na svět!",
+    title:"Kdo přijde na svět?",
     nameHeading:"Tvoje jméno", nameLabel:"Jak se jmenuješ?", namePlaceholder:"Zadej své jméno",
     genderHeading:"Jaký je tvůj tip?", girlBtn:"👧 Holčička", boyBtn:"👦 Kluk",
-    dateHeading:"Odhadni datum porodu", dateLabel:"Kdy si myslíš, že miminko přijde?",
+    dateHeading:"Odhadni datum porodu", dateLabel:"Kdy si myslíš, že se miminko narodí?",
     namesHeading:"Navrhni jména", namesSub:"Až 3 jména pro každé pohlaví (volitelné)",
     girlNamesLbl:"👧 Dívčí jména", boyNamesLbl:"👦 Chlapecká jména",
     submitBtn:"Odeslat tip", statsLink:"Zobrazit statistiky →", adminLink:"Přihlášení správce",
@@ -291,7 +290,7 @@ const i18n = {
     totalEntries:"Celkem záznamů", girlBoyVotes:"Holčička / Kluk", loading:"Načítám…", saving:"Ukládám…",
   },
   uk: {
-    title:"Конкурс немовляти", subtitle:"Зроби свій прогноз щодо нашого малюка!",
+    title:"Хто до нас іде?",
     nameHeading:"Твоє ім'я", nameLabel:"Як тебе звати?", namePlaceholder:"Введи своє ім'я",
     genderHeading:"Яка твоя думка?", girlBtn:"👧 Дівчинка", boyBtn:"👦 Хлопчик",
     dateHeading:"Вгадай дату пологів", dateLabel:"Коли, на твою думку, з'явиться малюк?",
@@ -323,7 +322,7 @@ function t(key) { return i18n[lang][key] || i18n['en'][key] || key; }
 
 function applyTranslations() {
   const ids = [
-    ['t-title','title'],['t-subtitle','subtitle'],
+    ['t-title','title'],
     ['t-name-heading','nameHeading'],['t-name-label','nameLabel'],
     ['t-gender-heading','genderHeading'],['t-girl-btn','girlBtn'],['t-boy-btn','boyBtn'],
     ['t-date-heading','dateHeading'],['t-date-label','dateLabel'],
