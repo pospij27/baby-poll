@@ -257,7 +257,7 @@ let hasSubmitted = false;
 const i18n = {
   en: {
     title:"Guess who's coming!",
-    nameHeading:"Your name", nameLabel:"What's your name?", namePlaceholder:"Enter your name",
+    nameHeading:"What's your name?", namePlaceholder:"Enter your name",
     genderHeading:"What's your guess?", girlBtn:"👧 Girl", boyBtn:"👦 Boy",
     dateHeading:"Guess the delivery date", dateLabel:"When do you think baby will arrive?",
     namesHeading:"Suggest names", namesSub:"Up to 3 names per gender (optional)",
@@ -287,7 +287,7 @@ const i18n = {
   },
   cs: {
     title:"Kdo přijde na svět?",
-    nameHeading:"Tvoje jméno", nameLabel:"Jak se jmenuješ?", namePlaceholder:"Zadej své jméno",
+    nameHeading:"Jak se jmenuješ?", namePlaceholder:"Zadej své jméno",
     genderHeading:"Jaký je tvůj tip?", girlBtn:"👧 Holčička", boyBtn:"👦 Klouček",
     dateHeading:"Odhadni datum porodu", dateLabel:"Kdy si myslíš, že se miminko narodí?",
     namesHeading:"Navrhni jména", namesSub:"Až 3 jména pro každé pohlaví (volitelné)",
@@ -317,7 +317,7 @@ const i18n = {
   },
   uk: {
     title:"Хто до нас іде?",
-    nameHeading:"Твоє ім'я", nameLabel:"Як тебе звати?", namePlaceholder:"Введи своє ім'я",
+    nameHeading:"Як тебе звати?", namePlaceholder:"Введи своє ім'я",
     genderHeading:"Яка твоя думка?", girlBtn:"👧 Дівчинка", boyBtn:"👦 Хлопчик",
     dateHeading:"Вгадай дату пологів", dateLabel:"Коли, на твою думку, з'явиться малюк?",
     namesHeading:"Запропонуй імена", namesSub:"До 3 імен для кожної статі (необов'язково)",
@@ -352,7 +352,7 @@ function t(key) { return i18n[lang][key] || i18n['en'][key] || key; }
 function applyTranslations() {
   const ids = [
     ['t-title','title'],
-    ['t-name-heading','nameHeading'],['t-name-label','nameLabel'],
+    ['t-name-heading','nameHeading'],
     ['t-gender-heading','genderHeading'],['t-girl-btn','girlBtn'],['t-boy-btn','boyBtn'],
     ['t-date-heading','dateHeading'],['t-date-label','dateLabel'],
     ['t-names-heading','namesHeading'],['t-names-sub','namesSub'],
