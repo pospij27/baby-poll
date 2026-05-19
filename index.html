@@ -476,7 +476,7 @@ async function submitVote() {
       ${bNames.length?`<p style="margin-top:4px;"><strong>${t('boyNamesRow')}:</strong> ${bNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
     `;
     const wantsReveal = document.getElementById('reveal-checkbox').checked;
-    lastSubmittedGender = 'girl';
+    lastSubmittedGender = 'boy';
     lastWantsReveal = wantsReveal;
     hasSubmitted = true;
     document.getElementById('t-stats-link').style.display = 'block';
