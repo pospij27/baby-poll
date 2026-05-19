@@ -264,7 +264,7 @@ const i18n = {
     submitBtn:"Submit my guess", statsLink:"View stats →", adminLink:"Admin login",
     thanksTitle:"Thanks for playing!", thanksSub:"Your guess has been recorded. Check back to see the results!",
     seeStatsBtn:"See live stats", anotherBtn:"← Make another guess",
-    statsTitle:"Live stats", totalGuesses:"Total guesses", splitLabel:"Girl / Boy split",
+    statsTitle:"Live stats", totalGuesses:"Total guesses", splitLabel:"Guessed correctly",
     genderPred:"Gender predictions", dateGuessesTitle:"Popular date guesses",
     namesTitle:"Suggested names", tabGirl:"👧 Girls", tabBoy:"👦 Boys",
     backBtn:"← Back", adminLoginTitle:"Admin login", adminLoginSub:"For parents only — see all entries with details.",
@@ -293,7 +293,7 @@ const i18n = {
     submitBtn:"Odeslat tip", statsLink:"Zobrazit statistiky →", adminLink:"Přihlášení správce",
     thanksTitle:"Díky za účast!", thanksSub:"Tvůj tip byl zaznamenán. Mrkni se na výsledky!",
     seeStatsBtn:"Živé statistiky", anotherBtn:"← Tipnout znovu",
-    statsTitle:"Živé statistiky", totalGuesses:"Celkem tipů", splitLabel:"Holčička / Klouček",
+    statsTitle:"Živé statistiky", totalGuesses:"Celkem tipů", splitLabel:"Tiplo správně",
     genderPred:"Předpovědi pohlaví", dateGuessesTitle:"Oblíbená data",
     namesTitle:"Navržená jména", tabGirl:"👧 Holčičky", tabBoy:"👦 Kluci",
     backBtn:"← Zpět", adminLoginTitle:"Přihlášení správce", adminLoginSub:"Pouze pro rodiče — zobrazí všechny záznamy.",
@@ -322,7 +322,7 @@ const i18n = {
     submitBtn:"Надіслати прогноз", statsLink:"Переглянути статистику →", adminLink:"Вхід адміністратора",
     thanksTitle:"Дякуємо за участь!", thanksSub:"Твій прогноз записано. Перевір результати пізніше!",
     seeStatsBtn:"Переглянути статистику", anotherBtn:"← Зробити ще один прогноз",
-    statsTitle:"Статистика", totalGuesses:"Всього прогнозів", splitLabel:"Дівчинка / Хлопчик",
+    statsTitle:"Статистика", totalGuesses:"Всього прогнозів", splitLabel:"Вгадали правильно",
     genderPred:"Прогнози статі", dateGuessesTitle:"Популярні дати",
     namesTitle:"Запропоновані імена", tabGirl:"👧 Дівчатка", tabBoy:"👦 Хлопчики",
     backBtn:"← Назад", adminLoginTitle:"Вхід адміністратора", adminLoginSub:"Тільки для батьків — перегляд усіх записів.",
@@ -379,7 +379,10 @@ function setLang(l) {
   applyTranslations();
   const revealEl = document.getElementById('reveal-result');
   if (lastWantsReveal && lastSubmittedGender && revealEl.style.display === 'block') {
-    revealEl.textContent = lastSubmittedGender==='girl' ? t('revealGirl') : t('revealBoy');
+    revealEl.textContent = t('revealGirl');
+  }
+  if (document.getElementById('screen-stats').classList.contains('active') && window._statsEntries) {
+    renderStats(window._statsEntries);
   }
 }
 
@@ -520,7 +523,7 @@ function renderStats(entries) {
   const boyPct=total?100-girlPct:0;
   document.getElementById('stats-metrics').innerHTML=`
     <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
-    <div class="metric"><div class="val">${girlPct}% / ${boyPct}%</div><div class="lbl">${t('splitLabel')}</div></div>
+    <div class="metric"><div class="val">${girlPct}%</div><div class="lbl">${t('splitLabel')}</div></div>
   `;
   document.getElementById('gender-bars').innerHTML=`
     <div class="stat-row"><span class="stat-label">${t('girlBtn')}</span><div class="bar-wrap"><div class="bar-fill bar-girl" style="width:${girlPct}%"></div></div><span class="stat-num">${girls}</span></div>
