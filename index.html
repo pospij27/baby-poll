@@ -250,6 +250,8 @@ const TABLE = "entries";
 
 let lang = 'en';
 let currentNamesTab = 'girl';
+let lastSubmittedGender = null;
+let lastWantsReveal = false;
 
 const i18n = {
   en: {
@@ -372,7 +374,14 @@ function applyTranslations() {
   if(active) active.classList.add('active-lang');
 }
 
-function setLang(l) { lang=l; applyTranslations(); }
+function setLang(l) {
+  lang=l;
+  applyTranslations();
+  const revealEl = document.getElementById('reveal-result');
+  if (lastWantsReveal && lastSubmittedGender && revealEl.style.display === 'block') {
+    revealEl.textContent = lastSubmittedGender==='girl' ? t('revealGirl') : t('revealBoy');
+  }
+}
 
 async function sbFetch(path, options={}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -456,6 +465,8 @@ async function submitVote() {
       ${bNames.length?`<p style="margin-top:4px;"><strong>${t('boyNamesRow')}:</strong> ${bNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
     `;
     const wantsReveal = document.getElementById('reveal-checkbox').checked;
+    lastSubmittedGender = gender;
+    lastWantsReveal = wantsReveal;
     const revealEl = document.getElementById('reveal-result');
     if (wantsReveal) {
       revealEl.textContent = gender==='girl' ? t('revealGirl') : t('revealBoy');
