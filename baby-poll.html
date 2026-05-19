@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Baby Pool 👶</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede9;
+    --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --pink-bg: #FBEAF0; --pink-border: #D4537E; --pink-text: #72243E;
+    --blue-bg: #E6F1FB; --blue-border: #378ADD; --blue-text: #0C447C;
+    --red: #A32D2D; --orange: #D85A30;
+    --radius: 12px; --radius-sm: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+      --text: #f0efe9; --text2: #b4b2a9; --text3: #888780;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      --pink-bg: #3a1a24; --pink-border: #D4537E; --pink-text: #f4c0d1;
+      --blue-bg: #0e2236; --blue-border: #378ADD; --blue-text: #B5D4F4;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+  .lang-bar { display: flex; gap: 6px; justify-content: flex-end; padding: 0.75rem 1rem 0; max-width: 580px; margin: 0 auto; }
+  .lang-btn { padding: 4px 10px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text2); font-weight: 500; }
+  .lang-btn:hover { background: var(--bg2); }
+  .lang-btn.active-lang { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+  .screen { display: none; padding: 1.5rem 1rem 3rem; max-width: 580px; margin: 0 auto; }
+  .screen.active { display: block; }
+  h1 { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 0.25rem; }
+  h2 { font-size: 18px; font-weight: 500; color: var(--text); margin-bottom: 1rem; }
+  h3 { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 0.5rem; }
+  p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+  label { font-size: 13px; color: var(--text2); display: block; margin-bottom: 4px; margin-top: 14px; }
+  input[type=text], input[type=date], input[type=password] {
+    width: 100%; padding: 8px 10px; border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text); font-size: 14px; outline: none;
+  }
+  input:focus { border-color: var(--blue-border); box-shadow: 0 0 0 3px rgba(55,138,221,0.15); }
+  input.input-error { border-color: var(--orange) !important; }
+  .card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .card.invalid { border-color: var(--orange); }
+  .gender-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+  .gender-btn { padding: 1rem; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); cursor: pointer; font-size: 15px; color: var(--text); text-align: center; transition: background 0.15s; }
+  .gender-btn:hover { background: var(--bg2); }
+  .gender-btn.selected-girl { background: var(--pink-bg); border-color: var(--pink-border); color: var(--pink-text); font-weight: 500; }
+  .gender-btn.selected-boy { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue-text); font-weight: 500; }
+  .names-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .btn { width: 100%; padding: 0.75rem; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius-sm); font-size: 15px; font-weight: 500; color: var(--text); cursor: pointer; margin-top: 1rem; transition: background 0.15s; }
+  .btn:hover { background: var(--bg2); }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue-text); }
+  .btn.primary:hover { filter: brightness(0.95); }
+  .btn.danger { border-color: var(--orange); color: #993C1D; }
+  .stat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .stat-label { font-size: 13px; color: var(--text2); min-width: 80px; }
+  .bar-wrap { flex: 1; height: 8px; background: var(--bg2); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+  .bar-girl { background: var(--pink-border); }
+  .bar-boy { background: var(--blue-border); }
+  .bar-neutral { background: var(--text3); }
+  .stat-num { font-size: 13px; font-weight: 500; color: var(--text); min-width: 28px; text-align: right; }
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
+  .metric .val { font-size: 22px; font-weight: 500; color: var(--text); }
+  .metric .lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .entry-row { border-top: 0.5px solid var(--border); padding: 0.6rem 0; font-size: 13px; color: var(--text2); }
+  .entry-row-inner { display: flex; justify-content: space-between; align-items: center; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+  .pill-girl { background: var(--pink-bg); color: var(--pink-text); }
+  .pill-boy { background: var(--blue-bg); color: var(--blue-text); }
+  .tab-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+  .tab { padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 0.5px solid var(--border2); background: var(--bg); color: var(--text2); }
+  .tab.active-tab { background: var(--bg2); color: var(--text); font-weight: 500; }
+  .nav-link { font-size: 12px; color: var(--text2); text-decoration: underline; cursor: pointer; text-align: center; margin-top: 1rem; display: block; background: none; border: none; width: 100%; }
+  .field-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+  .field-error.show { display: block; }
+  .names-chip { display: inline-block; background: var(--bg2); border-radius: var(--radius-sm); padding: 1px 8px; margin: 2px 3px 2px 0; font-size: 13px; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--blue-border); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 99; }
+  .toast.show { opacity: 1; }
+  .hero { text-align: center; padding: 1rem 0 0.5rem; }
+  .hero-emoji { font-size: 36px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="lang-bar">
+  <button class="lang-btn active-lang" onclick="setLang('en')">🇬🇧 EN</button>
+  <button class="lang-btn" onclick="setLang('cs')">🇨🇿 CS</button>
+  <button class="lang-btn" onclick="setLang('uk')">🇺🇦 UA</button>
+</div>
+
+<!-- VOTE -->
+<div id="screen-vote" class="screen active">
+  <div class="hero">
+    <div class="hero-emoji">👶</div>
+    <h1 id="t-title"></h1>
+    <p id="t-subtitle" style="margin-bottom:1rem;"></p>
+  </div>
+
+  <div class="card" id="card-name">
+    <h3 id="t-name-heading"></h3>
+    <label id="t-name-label"></label>
+    <input type="text" id="guess-name" oninput="clearErr('card-name','err-name','guess-name')" />
+    <div class="field-error" id="err-name"></div>
+  </div>
+
+  <div class="card" id="card-gender">
+    <h3 id="t-gender-heading"></h3>
+    <div class="gender-row">
+      <button class="gender-btn" id="btn-girl" onclick="selectGender('girl')"><span id="t-girl-btn"></span></button>
+      <button class="gender-btn" id="btn-boy" onclick="selectGender('boy')"><span id="t-boy-btn"></span></button>
+    </div>
+    <div class="field-error" id="err-gender"></div>
+  </div>
+
+  <div class="card" id="card-date">
+    <h3 id="t-date-heading"></h3>
+    <label id="t-date-label"></label>
+    <input type="date" id="guess-date" oninput="clearErr('card-date','err-date','guess-date')" />
+    <div class="field-error" id="err-date"></div>
+  </div>
+
+  <div class="card">
+    <h3 id="t-names-heading"></h3>
+    <p id="t-names-sub" style="margin-bottom:8px;"></p>
+    <div class="gender-row" style="margin-bottom:10px;">
+      <div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:4px;" id="t-girl-names-lbl"></p>
+        <div class="names-grid">
+          <input type="text" id="gn1" /><input type="text" id="gn2" /><input type="text" id="gn3" />
+        </div>
+      </div>
+      <div>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:4px;" id="t-boy-names-lbl"></p>
+        <div class="names-grid">
+          <input type="text" id="bn1" /><input type="text" id="bn2" /><input type="text" id="bn3" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn primary" id="submit-btn" onclick="submitVote()">
+    <span id="t-submit-btn"></span>
+  </button>
+  <button class="nav-link" id="t-stats-link" onclick="showStats()"></button>
+  <button class="nav-link" id="t-admin-link" onclick="showAdminLogin()"></button>
+</div>
+
+<!-- THANKS -->
+<div id="screen-thanks" class="screen">
+  <div class="hero" style="padding:2rem 0 1rem;">
+    <div class="hero-emoji">🎉</div>
+    <h1 id="t-thanks-title" style="margin-bottom:0.5rem;"></h1>
+    <p id="t-thanks-sub" style="margin-bottom:1.5rem;"></p>
+  </div>
+  <div class="card" id="summary-card"></div>
+  <button class="btn primary" onclick="showStats()"><span id="t-see-stats-btn"></span></button>
+  <button class="btn" style="margin-top:8px;" onclick="showVote()"><span id="t-another-btn"></span></button>
+</div>
+
+<!-- STATS -->
+<div id="screen-stats" class="screen">
+  <h2 id="t-stats-title"></h2>
+  <div class="metric-grid" id="stats-metrics"></div>
+  <div class="card">
+    <h3 id="t-gender-pred"></h3>
+    <div id="gender-bars" style="margin-top:0.5rem;"></div>
+  </div>
+  <div class="card">
+    <h3 id="t-date-guesses-title"></h3>
+    <div id="date-guesses" style="font-size:13px;"></div>
+  </div>
+  <div class="card">
+    <h3 id="t-names-title"></h3>
+    <div class="tab-row">
+      <div class="tab active-tab" id="tab-girl" onclick="switchNamesTab('girl')"><span id="t-tab-girl"></span></div>
+      <div class="tab" id="tab-boy" onclick="switchNamesTab('boy')"><span id="t-tab-boy"></span></div>
+    </div>
+    <div id="names-stats"></div>
+  </div>
+  <button class="btn" onclick="showVote()"><span id="t-back-btn"></span></button>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="screen-admin-login" class="screen">
+  <h2 id="t-admin-login-title"></h2>
+  <p id="t-admin-login-sub" style="margin-bottom:1rem;"></p>
+  <div class="card">
+    <label id="t-pw-label"></label>
+    <input type="password" id="admin-pw" onkeydown="if(event.key==='Enter')adminLogin()" />
+    <div class="field-error" id="pw-error"></div>
+  </div>
+  <button class="btn primary" onclick="adminLogin()"><span id="t-login-btn"></span></button>
+  <button class="btn" style="margin-top:8px;" onclick="showVote()"><span id="t-back-btn2"></span></button>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <h2 id="t-admin-title" style="margin-bottom:0;"></h2>
+    <button class="btn" style="width:auto;padding:4px 12px;font-size:13px;margin-top:0;" onclick="showVote()"><span id="t-logout-btn"></span></button>
+  </div>
+  <div class="metric-grid" id="admin-metrics"></div>
+  <div class="card">
+    <h3 id="t-all-entries"></h3>
+    <div id="admin-entries"></div>
+  </div>
+  <div class="card">
+    <h3 id="t-export-title"></h3>
+    <p id="t-export-sub"></p>
+    <button class="btn" style="margin-top:8px;" onclick="exportCSV()">⬇ <span id="t-export-btn"></span></button>
+  </div>
+  <div class="card">
+    <h3 style="color:var(--red);" id="t-danger-title"></h3>
+    <p id="t-danger-sub" style="margin-bottom:8px;"></p>
+    <button class="btn danger" onclick="clearAll()">🗑 <span id="t-clear-btn"></span></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://hknkoiiescuhzdsktwok.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbmtvaWllc2N1aHpkc2t0d29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTg3NTUsImV4cCI6MjA5NDc3NDc1NX0.fd-l_ayYxrmCG6nAtQziu3vfI2XavBtOO5n_y28yTok";
+const ADMIN_PASSWORD = "baby2024";
+const TABLE = "entries";
+
+let lang = 'en';
+let currentNamesTab = 'girl';
+
+const i18n = {
+  en: {
+    title:"Baby pool", subtitle:"Cast your guess for our new arrival!",
+    nameHeading:"Your name", nameLabel:"What's your name?", namePlaceholder:"Enter your name",
+    genderHeading:"What's your guess?", girlBtn:"👧 Girl", boyBtn:"👦 Boy",
+    dateHeading:"Guess the delivery date", dateLabel:"When do you think baby will arrive?",
+    namesHeading:"Suggest names", namesSub:"Up to 3 names per gender (optional)",
+    girlNamesLbl:"👧 Girl names", boyNamesLbl:"👦 Boy names",
+    submitBtn:"Submit my guess", statsLink:"View stats →", adminLink:"Admin login",
+    thanksTitle:"Thanks for playing!", thanksSub:"Your guess has been recorded. Check back to see the results!",
+    seeStatsBtn:"See live stats", anotherBtn:"← Make another guess",
+    statsTitle:"Live stats", totalGuesses:"Total guesses", splitLabel:"Girl / Boy split",
+    genderPred:"Gender predictions", dateGuessesTitle:"Popular date guesses",
+    namesTitle:"Suggested names", tabGirl:"👧 Girls", tabBoy:"👦 Boys",
+    backBtn:"← Back", adminLoginTitle:"Admin login", adminLoginSub:"For parents only — see all entries with details.",
+    pwLabel:"Password", pwPlaceholder:"Enter admin password", pwError:"Incorrect password",
+    loginBtn:"Login", back2:"← Back", adminTitle:"Admin view", logoutBtn:"Logout",
+    allEntries:"All entries", exportTitle:"Export", exportSub:"Copy all responses as CSV.",
+    exportBtn:"Copy CSV to clipboard", copied:"Copied!", dangerTitle:"Danger zone",
+    dangerSub:"Clear all entries (cannot be undone).", clearBtn:"Clear all entries",
+    noEntries:"No entries yet.", noNames:"No names suggested yet.", noDateGuesses:"No guesses yet.",
+    errorName:"Please enter your name.", errorGender:"Please select a gender.", errorDate:"Please pick a date.",
+    girlNamesRow:"Girl names", boyNamesRow:"Boy names", nameRow:"Name",
+    dateRow:"Date guess", submittedAt:"Submitted",
+    voteLabel: n=>`Entry #${n}`, confirmClear:"Clear ALL entries? This cannot be undone.",
+    yourGuess:"Your guess", votes: c=>`${c} vote${c>1?'s':''}`,
+    totalEntries:"Total entries", girlBoyVotes:"Girl / Boy votes", loading:"Loading…", saving:"Saving…",
+  },
+  cs: {
+    title:"Soutěž o mimino", subtitle:"Tipni si, kdo přichází na svět!",
+    nameHeading:"Tvoje jméno", nameLabel:"Jak se jmenuješ?", namePlaceholder:"Zadej své jméno",
+    genderHeading:"Jaký je tvůj tip?", girlBtn:"👧 Holčička", boyBtn:"👦 Kluk",
+    dateHeading:"Odhadni datum porodu", dateLabel:"Kdy si myslíš, že miminko přijde?",
+    namesHeading:"Navrhni jména", namesSub:"Až 3 jména pro každé pohlaví (volitelné)",
+    girlNamesLbl:"👧 Dívčí jména", boyNamesLbl:"👦 Chlapecká jména",
+    submitBtn:"Odeslat tip", statsLink:"Zobrazit statistiky →", adminLink:"Přihlášení správce",
+    thanksTitle:"Díky za účast!", thanksSub:"Tvůj tip byl zaznamenán. Mrkni se na výsledky!",
+    seeStatsBtn:"Živé statistiky", anotherBtn:"← Tipnout znovu",
+    statsTitle:"Živé statistiky", totalGuesses:"Celkem tipů", splitLabel:"Holčička / Kluk",
+    genderPred:"Předpovědi pohlaví", dateGuessesTitle:"Oblíbená data",
+    namesTitle:"Navržená jména", tabGirl:"👧 Holčičky", tabBoy:"👦 Kluci",
+    backBtn:"← Zpět", adminLoginTitle:"Přihlášení správce", adminLoginSub:"Pouze pro rodiče — zobrazí všechny záznamy.",
+    pwLabel:"Heslo", pwPlaceholder:"Zadej heslo správce", pwError:"Nesprávné heslo",
+    loginBtn:"Přihlásit se", back2:"← Zpět", adminTitle:"Správcovský přehled", logoutBtn:"Odhlásit",
+    allEntries:"Všechny záznamy", exportTitle:"Export", exportSub:"Zkopírovat všechny odpovědi jako CSV.",
+    exportBtn:"Kopírovat CSV", copied:"Zkopírováno!", dangerTitle:"Nebezpečná zóna",
+    dangerSub:"Smazat všechny záznamy (nelze vrátit).", clearBtn:"Smazat vše",
+    noEntries:"Zatím žádné záznamy.", noNames:"Zatím žádná jména.", noDateGuesses:"Zatím žádné tipy.",
+    errorName:"Prosím, zadej své jméno.", errorGender:"Prosím, vyber pohlaví.", errorDate:"Prosím, vyber datum.",
+    girlNamesRow:"Dívčí jména", boyNamesRow:"Chlapecká jména", nameRow:"Jméno",
+    dateRow:"Tip data", submittedAt:"Odesláno",
+    voteLabel: n=>`Záznam #${n}`, confirmClear:"Smazat VŠECHNY záznamy? Tato akce je nevratná.",
+    yourGuess:"Tvůj tip", votes: c=>`${c} hlas${c===1?'':'y'}`,
+    totalEntries:"Celkem záznamů", girlBoyVotes:"Holčička / Kluk", loading:"Načítám…", saving:"Ukládám…",
+  },
+  uk: {
+    title:"Конкурс немовляти", subtitle:"Зроби свій прогноз щодо нашого малюка!",
+    nameHeading:"Твоє ім'я", nameLabel:"Як тебе звати?", namePlaceholder:"Введи своє ім'я",
+    genderHeading:"Яка твоя думка?", girlBtn:"👧 Дівчинка", boyBtn:"👦 Хлопчик",
+    dateHeading:"Вгадай дату пологів", dateLabel:"Коли, на твою думку, з'явиться малюк?",
+    namesHeading:"Запропонуй імена", namesSub:"До 3 імен для кожної статі (необов'язково)",
+    girlNamesLbl:"👧 Імена для дівчинки", boyNamesLbl:"👦 Імена для хлопчика",
+    submitBtn:"Надіслати прогноз", statsLink:"Переглянути статистику →", adminLink:"Вхід адміністратора",
+    thanksTitle:"Дякуємо за участь!", thanksSub:"Твій прогноз записано. Перевір результати пізніше!",
+    seeStatsBtn:"Переглянути статистику", anotherBtn:"← Зробити ще один прогноз",
+    statsTitle:"Статистика", totalGuesses:"Всього прогнозів", splitLabel:"Дівчинка / Хлопчик",
+    genderPred:"Прогнози статі", dateGuessesTitle:"Популярні дати",
+    namesTitle:"Запропоновані імена", tabGirl:"👧 Дівчатка", tabBoy:"👦 Хлопчики",
+    backBtn:"← Назад", adminLoginTitle:"Вхід адміністратора", adminLoginSub:"Тільки для батьків — перегляд усіх записів.",
+    pwLabel:"Пароль", pwPlaceholder:"Введи пароль адміністратора", pwError:"Неправильний пароль",
+    loginBtn:"Увійти", back2:"← Назад", adminTitle:"Панель адміністратора", logoutBtn:"Вийти",
+    allEntries:"Всі записи", exportTitle:"Експорт", exportSub:"Скопіювати всі відповіді як CSV.",
+    exportBtn:"Скопіювати CSV", copied:"Скопійовано!", dangerTitle:"Небезпечна зона",
+    dangerSub:"Видалити всі записи (незворотньо).", clearBtn:"Видалити все",
+    noEntries:"Записів ще немає.", noNames:"Імена ще не запропоновано.", noDateGuesses:"Прогнозів ще немає.",
+    errorName:"Будь ласка, введи своє ім'я.", errorGender:"Будь ласка, обери стать.", errorDate:"Будь ласка, обери дату.",
+    girlNamesRow:"Імена для дівчинки", boyNamesRow:"Імена для хлопчика", nameRow:"Ім'я",
+    dateRow:"Дата прогнозу", submittedAt:"Надіслано",
+    voteLabel: n=>`Запис #${n}`, confirmClear:"Видалити ВСІ записи? Цю дію не можна скасувати.",
+    yourGuess:"Твій прогноз", votes: c=>`${c} голос${c===1?'':'ів'}`,
+    totalEntries:"Всього записів", girlBoyVotes:"Дівчинка / Хлопчик", loading:"Завантаження…", saving:"Збереження…",
+  }
+};
+
+function t(key) { return i18n[lang][key] || i18n['en'][key] || key; }
+
+function applyTranslations() {
+  const ids = [
+    ['t-title','title'],['t-subtitle','subtitle'],
+    ['t-name-heading','nameHeading'],['t-name-label','nameLabel'],
+    ['t-gender-heading','genderHeading'],['t-girl-btn','girlBtn'],['t-boy-btn','boyBtn'],
+    ['t-date-heading','dateHeading'],['t-date-label','dateLabel'],
+    ['t-names-heading','namesHeading'],['t-names-sub','namesSub'],
+    ['t-girl-names-lbl','girlNamesLbl'],['t-boy-names-lbl','boyNamesLbl'],
+    ['t-submit-btn','submitBtn'],['t-stats-link','statsLink'],['t-admin-link','adminLink'],
+    ['t-thanks-title','thanksTitle'],['t-thanks-sub','thanksSub'],
+    ['t-see-stats-btn','seeStatsBtn'],['t-another-btn','anotherBtn'],
+    ['t-stats-title','statsTitle'],['t-gender-pred','genderPred'],
+    ['t-date-guesses-title','dateGuessesTitle'],['t-names-title','namesTitle'],
+    ['t-tab-girl','tabGirl'],['t-tab-boy','tabBoy'],['t-back-btn','backBtn'],
+    ['t-admin-login-title','adminLoginTitle'],['t-admin-login-sub','adminLoginSub'],
+    ['t-pw-label','pwLabel'],['t-login-btn','loginBtn'],
+    ['t-back-btn2','back2'],['t-admin-title','adminTitle'],['t-logout-btn','logoutBtn'],
+    ['t-all-entries','allEntries'],['t-export-title','exportTitle'],['t-export-sub','exportSub'],
+    ['t-export-btn','exportBtn'],['t-danger-title','dangerTitle'],['t-danger-sub','dangerSub'],['t-clear-btn','clearBtn'],
+  ];
+  ids.forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=t(key); });
+  const np=document.getElementById('guess-name'); if(np) np.placeholder=t('namePlaceholder');
+  const ap=document.getElementById('admin-pw'); if(ap) ap.placeholder=t('pwPlaceholder');
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active-lang'));
+  const active=document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`);
+  if(active) active.classList.add('active-lang');
+}
+
+function setLang(l) { lang=l; applyTranslations(); }
+
+async function sbFetch(path, options={}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || '',
+      ...options.headers
+    },
+    ...options
+  });
+  if (!res.ok) { const err = await res.text(); throw new Error(err); }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function loadEntries() {
+  return await sbFetch(`${TABLE}?order=created_at.asc&select=*`);
+}
+
+async function insertEntry(entry) {
+  await sbFetch(TABLE, {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify(entry)
+  });
+}
+
+async function deleteAllEntries() {
+  await sbFetch(`${TABLE}?id=gte.0`, { method: 'DELETE' });
+}
+
+function clearErr(cardId, errId, inputId) {
+  document.getElementById(cardId).classList.remove('invalid');
+  document.getElementById(errId).classList.remove('show');
+  if(inputId) document.getElementById(inputId).classList.remove('input-error');
+}
+function showErr(cardId, errId, msg, inputId) {
+  document.getElementById(cardId).classList.add('invalid');
+  const el=document.getElementById(errId); el.textContent=msg; el.classList.add('show');
+  if(inputId) document.getElementById(inputId).classList.add('input-error');
+}
+
+function selectGender(g) {
+  document.getElementById('btn-girl').className='gender-btn'+(g==='girl'?' selected-girl':'');
+  document.getElementById('btn-boy').className='gender-btn'+(g==='boy'?' selected-boy':'');
+  document.getElementById('btn-girl').dataset.sel=g==='girl'?'1':'';
+  document.getElementById('btn-boy').dataset.sel=g==='boy'?'1':'';
+  clearErr('card-gender','err-gender',null);
+}
+function getSelectedGender() {
+  if(document.getElementById('btn-girl').dataset.sel) return 'girl';
+  if(document.getElementById('btn-boy').dataset.sel) return 'boy';
+  return null;
+}
+
+async function submitVote() {
+  const name = document.getElementById('guess-name').value.trim();
+  const gender = getSelectedGender();
+  const date = document.getElementById('guess-date').value;
+  let valid = true;
+  if(!name) { showErr('card-name','err-name',t('errorName'),'guess-name'); valid=false; }
+  if(!gender) { showErr('card-gender','err-gender',t('errorGender'),null); valid=false; }
+  if(!date) { showErr('card-date','err-date',t('errorDate'),'guess-date'); valid=false; }
+  if(!valid) return;
+
+  const gNames=['gn1','gn2','gn3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  const bNames=['bn1','bn2','bn3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled=true; btn.innerHTML=`<span class="spinner"></span>${t('saving')}`;
+
+  try {
+    await insertEntry({ name, gender, date, girl_names: gNames.join(','), boy_names: bNames.join(',') });
+    const sumCard=document.getElementById('summary-card');
+    sumCard.innerHTML=`
+      <p style="margin-bottom:6px;"><strong>${t('nameRow')}:</strong> ${name}</p>
+      <p style="margin-bottom:6px;"><strong>${t('yourGuess')}:</strong> ${gender==='girl'?t('girlBtn'):t('boyBtn')} · ${formatDate(date)}</p>
+      ${gNames.length?`<p style="margin-top:4px;"><strong>${t('girlNamesRow')}:</strong> ${gNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
+      ${bNames.length?`<p style="margin-top:4px;"><strong>${t('boyNamesRow')}:</strong> ${bNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
+    `;
+    showScreen('screen-thanks');
+  } catch(e) {
+    showToast('Error saving. Please try again.');
+  } finally {
+    btn.disabled=false; btn.innerHTML=`<span id="t-submit-btn">${t('submitBtn')}</span>`;
+  }
+}
+
+function formatDate(d) { if(!d)return'—'; const [y,m,day]=d.split('-'); return`${day}/${m}/${y}`; }
+
+function showVote() { showScreen('screen-vote'); resetVoteForm(); }
+function showAdminLogin() { showScreen('screen-admin-login'); }
+
+async function showStats() {
+  showScreen('screen-stats');
+  document.getElementById('stats-metrics').innerHTML=`<div class="metric"><div class="val">…</div><div class="lbl">${t('loading')}</div></div>`;
+  try {
+    const entries = await loadEntries();
+    renderStats(entries);
+  } catch(e) { showToast('Error loading stats.'); }
+}
+
+function resetVoteForm() {
+  ['btn-girl','btn-boy'].forEach(id=>{ document.getElementById(id).className='gender-btn'; document.getElementById(id).dataset.sel=''; });
+  ['gn1','gn2','gn3','bn1','bn2','bn3','guess-name'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('guess-date').value='';
+  [['card-name','err-name','guess-name'],['card-gender','err-gender',null],['card-date','err-date','guess-date']]
+    .forEach(([c,e,i])=>clearErr(c,e,i));
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function renderStats(entries) {
+  const total=entries.length;
+  const girls=entries.filter(e=>e.gender==='girl').length;
+  const boys=total-girls;
+  const girlPct=total?Math.round(girls/total*100):0;
+  const boyPct=total?100-girlPct:0;
+  document.getElementById('stats-metrics').innerHTML=`
+    <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
+    <div class="metric"><div class="val">${girlPct}% / ${boyPct}%</div><div class="lbl">${t('splitLabel')}</div></div>
+  `;
+  document.getElementById('gender-bars').innerHTML=`
+    <div class="stat-row"><span class="stat-label">${t('girlBtn')}</span><div class="bar-wrap"><div class="bar-fill bar-girl" style="width:${girlPct}%"></div></div><span class="stat-num">${girls}</span></div>
+    <div class="stat-row"><span class="stat-label">${t('boyBtn')}</span><div class="bar-wrap"><div class="bar-fill bar-boy" style="width:${boyPct}%"></div></div><span class="stat-num">${boys}</span></div>
+  `;
+  const dateCounts={};
+  entries.forEach(e=>{ if(e.date) dateCounts[e.date]=(dateCounts[e.date]||0)+1; });
+  const sortedDates=Object.entries(dateCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  document.getElementById('date-guesses').innerHTML=sortedDates.length
+    ?sortedDates.map(([d,c])=>`<div class="stat-row"><span class="stat-label" style="min-width:90px;">${formatDate(d)}</span><div class="bar-wrap"><div class="bar-fill bar-neutral" style="width:${Math.round(c/total*100)}%"></div></div><span class="stat-num">${c}</span></div>`).join('')
+    :`<p>${t('noDateGuesses')}</p>`;
+  window._statsEntries = entries;
+  renderNamesTab();
+}
+
+function switchNamesTab(tab) {
+  currentNamesTab=tab;
+  document.getElementById('tab-girl').className='tab'+(tab==='girl'?' active-tab':'');
+  document.getElementById('tab-boy').className='tab'+(tab==='boy'?' active-tab':'');
+  renderNamesTab();
+}
+function renderNamesTab() {
+  const entries=window._statsEntries||[];
+  const nameCounts={};
+  entries.forEach(e=>{
+    const raw=currentNamesTab==='girl'?e.girl_names:e.boy_names;
+    if(raw) raw.split(',').forEach(n=>{ n=n.trim(); if(n) nameCounts[n]=(nameCounts[n]||0)+1; });
+  });
+  const sorted=Object.entries(nameCounts).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('names-stats').innerHTML=sorted.length
+    ?sorted.map(([n,c])=>`<div class="entry-row"><div class="entry-row-inner"><span>${n}</span><span style="font-weight:500;color:var(--text);">${t('votes')(c)}</span></div></div>`).join('')
+    :`<p style="font-size:13px;color:var(--text2);">${t('noNames')}</p>`;
+}
+
+function adminLogin() {
+  const pw=document.getElementById('admin-pw').value;
+  if(pw===ADMIN_PASSWORD){
+    document.getElementById('pw-error').classList.remove('show');
+    showScreen('screen-admin');
+    loadAdminEntries();
+  } else {
+    const el=document.getElementById('pw-error'); el.textContent=t('pwError'); el.classList.add('show');
+  }
+}
+
+async function loadAdminEntries() {
+  document.getElementById('admin-entries').innerHTML=`<p style="font-size:13px;color:var(--text2);">${t('loading')}</p>`;
+  try {
+    const entries=await loadEntries();
+    const total=entries.length;
+    const girls=entries.filter(e=>e.gender==='girl').length;
+    document.getElementById('admin-metrics').innerHTML=`
+      <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalEntries')}</div></div>
+      <div class="metric"><div class="val">${girls} / ${total-girls}</div><div class="lbl">${t('girlBoyVotes')}</div></div>
+    `;
+    const el=document.getElementById('admin-entries');
+    if(!total){ el.innerHTML=`<p style="font-size:13px;color:var(--text2);">${t('noEntries')}</p>`; return; }
+    el.innerHTML=[...entries].reverse().map(e=>`
+      <div class="entry-row" style="flex-direction:column;align-items:flex-start;gap:3px;">
+        <div class="entry-row-inner" style="width:100%;">
+          <span style="font-weight:500;color:var(--text);">${e.name||'—'}</span>
+          <span class="pill ${e.gender==='girl'?'pill-girl':'pill-boy'}">${e.gender==='girl'?t('girlBtn'):t('boyBtn')}</span>
+        </div>
+        <span>${t('dateRow')}: ${formatDate(e.date)}</span>
+        ${e.girl_names?`<span>${t('girlNamesRow')}: ${e.girl_names}</span>`:''}
+        ${e.boy_names?`<span>${t('boyNamesRow')}: ${e.boy_names}</span>`:''}
+        <span style="font-size:11px;color:var(--text3);">${new Date(e.created_at).toLocaleString()}</span>
+      </div>
+    `).join('');
+    window._adminEntries = entries;
+  } catch(e) { showToast('Error loading entries.'); }
+}
+
+async function exportCSV() {
+  const entries=window._adminEntries||[];
+  const rows=[['Name','Gender','Date guess','Girl names','Boy names','Submitted at']];
+  entries.forEach(e=>rows.push([e.name||'',e.gender,e.date,e.girl_names||'',e.boy_names||'',e.created_at]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  await navigator.clipboard.writeText(csv);
+  showToast(t('copied'));
+}
+
+async function clearAll() {
+  if(!confirm(t('confirmClear'))) return;
+  try { await deleteAllEntries(); window._adminEntries=[]; loadAdminEntries(); }
+  catch(e) { showToast('Error clearing entries.'); }
+}
+
+function showToast(msg) {
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+applyTranslations();
+</script>
+</body>
+</html>
