@@ -86,6 +86,14 @@
   .toast.show { opacity: 1; }
   .hero { text-align: center; padding: 1rem 0 0.5rem; }
   .hero-emoji { font-size: 36px; margin-bottom: 8px; }
+  .reveal-box { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 6px; }
+  .reveal-checkbox-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .reveal-checkbox-row input[type=checkbox] { width: 18px; height: 18px; min-width: 18px; accent-color: var(--blue-border); cursor: pointer; }
+  .reveal-checkbox-label { font-size: 15px; font-weight: 500; color: var(--text); }
+  .reveal-hint { font-size: 12px; color: var(--text3); padding-left: 28px; }
+  .reveal-result { margin-top: 10px; padding: 0.75rem 1rem; border-radius: var(--radius-sm); text-align: center; font-size: 20px; font-weight: 500; display: none; }
+  .reveal-result.girl { background: var(--pink-bg); color: var(--pink-text); }
+  .reveal-result.boy { background: var(--blue-bg); color: var(--blue-text); }
 </style>
 </head>
 <body>
@@ -145,6 +153,14 @@
     </div>
   </div>
 
+  <div class="reveal-box">
+    <label class="reveal-checkbox-row">
+      <input type="checkbox" id="reveal-checkbox" />
+      <span class="reveal-checkbox-label" id="t-reveal-label"></span>
+    </label>
+    <p class="reveal-hint" id="t-reveal-hint"></p>
+  </div>
+
   <button class="btn primary" id="submit-btn" onclick="submitVote()">
     <span id="t-submit-btn"></span>
   </button>
@@ -160,6 +176,7 @@
     <p id="t-thanks-sub" style="margin-bottom:1.5rem;"></p>
   </div>
   <div class="card" id="summary-card"></div>
+  <div class="reveal-result" id="reveal-result"></div>
   <button class="btn primary" onclick="showStats()"><span id="t-see-stats-btn"></span></button>
   <button class="btn" style="margin-top:8px;" onclick="showVote()"><span id="t-another-btn"></span></button>
 </div>
@@ -261,6 +278,8 @@ const i18n = {
     voteLabel: n=>`Entry #${n}`, confirmClear:"Clear ALL entries? This cannot be undone.",
     yourGuess:"Your guess", votes: c=>`${c} vote${c>1?'s':''}`,
     totalEntries:"Total entries", girlBoyVotes:"Girl / Boy votes", loading:"Loading…", saving:"Saving…",
+    revealLabel:"I want to know the gender", revealHint:"The gender will be revealed after submitting.",
+    revealGirl:"It's a girl! 👧", revealBoy:"It's a boy! 👦",
   },
   cs: {
     title:"Kdo přijde na svět?",
@@ -288,6 +307,8 @@ const i18n = {
     voteLabel: n=>`Záznam #${n}`, confirmClear:"Smazat VŠECHNY záznamy? Tato akce je nevratná.",
     yourGuess:"Tvůj tip", votes: c=>`${c} hlas${c===1?'':'y'}`,
     totalEntries:"Celkem záznamů", girlBoyVotes:"Holčička / Klouček", loading:"Načítám…", saving:"Ukládám…",
+    revealLabel:"Chci znát pohlaví", revealHint:"Pohlaví se zobrazí po odeslání.",
+    revealGirl:"Je to holčička! 👧", revealBoy:"Je to klouček! 👦",
   },
   uk: {
     title:"Хто до нас іде?",
@@ -315,6 +336,8 @@ const i18n = {
     voteLabel: n=>`Запис #${n}`, confirmClear:"Видалити ВСІ записи? Цю дію не можна скасувати.",
     yourGuess:"Твій прогноз", votes: c=>`${c} голос${c===1?'':'ів'}`,
     totalEntries:"Всього записів", girlBoyVotes:"Дівчинка / Хлопчик", loading:"Завантаження…", saving:"Збереження…",
+    revealLabel:"Хочу дізнатися стать", revealHint:"Стать буде показана після надсилання.",
+    revealGirl:"Це дівчинка! 👧", revealBoy:"Це хлопчик! 👦",
   }
 };
 
@@ -339,6 +362,7 @@ function applyTranslations() {
     ['t-back-btn2','back2'],['t-admin-title','adminTitle'],['t-logout-btn','logoutBtn'],
     ['t-all-entries','allEntries'],['t-export-title','exportTitle'],['t-export-sub','exportSub'],
     ['t-export-btn','exportBtn'],['t-danger-title','dangerTitle'],['t-danger-sub','dangerSub'],['t-clear-btn','clearBtn'],
+    ['t-reveal-label','revealLabel'],['t-reveal-hint','revealHint'],
   ];
   ids.forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=t(key); });
   const np=document.getElementById('guess-name'); if(np) np.placeholder=t('namePlaceholder');
@@ -431,6 +455,15 @@ async function submitVote() {
       ${gNames.length?`<p style="margin-top:4px;"><strong>${t('girlNamesRow')}:</strong> ${gNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
       ${bNames.length?`<p style="margin-top:4px;"><strong>${t('boyNamesRow')}:</strong> ${bNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
     `;
+    const wantsReveal = document.getElementById('reveal-checkbox').checked;
+    const revealEl = document.getElementById('reveal-result');
+    if (wantsReveal) {
+      revealEl.textContent = gender==='girl' ? t('revealGirl') : t('revealBoy');
+      revealEl.className = 'reveal-result ' + gender;
+      revealEl.style.display = 'block';
+    } else {
+      revealEl.style.display = 'none';
+    }
     showScreen('screen-thanks');
   } catch(e) {
     showToast('Error saving. Please try again.');
@@ -457,6 +490,7 @@ function resetVoteForm() {
   ['btn-girl','btn-boy'].forEach(id=>{ document.getElementById(id).className='gender-btn'; document.getElementById(id).dataset.sel=''; });
   ['gn1','gn2','gn3','bn1','bn2','bn3','guess-name'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('guess-date').value='';
+  document.getElementById('reveal-checkbox').checked=false;
   [['card-name','err-name','guess-name'],['card-gender','err-gender',null],['card-date','err-date','guess-date']]
     .forEach(([c,e,i])=>clearErr(c,e,i));
 }
