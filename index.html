@@ -99,10 +99,10 @@
 <body>
 
 <div class="lang-bar">
-  <button class="lang-btn active-lang" onclick="setLang('cs')">🇨🇿 CS</button>
-  <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+  <button class="lang-btn active-lang" onclick="setLang('en')">🇬🇧 EN</button>
+  <button class="lang-btn" onclick="setLang('cs')">🇨🇿 CS</button>
+  <button class="lang-btn" onclick="setLang('uk')">🇺🇦 UA</button>
   <button class="lang-btn" onclick="setLang('no')">🇳🇴 NO</button>
- <button class="lang-btn" onclick="setLang('uk')">🇺🇦 UA</button>
 </div>
 
 <!-- VOTE -->
@@ -271,7 +271,7 @@ const i18n = {
     submitBtn:"Submit my guess", statsLink:"View stats →", adminLink:"Admin login",
     thanksTitle:"Thanks for playing!", thanksSub:"Your guess has been recorded. Check back to see the results!",
     seeStatsBtn:"See live stats", anotherBtn:"← Make another guess",
-    statsTitle:"Live stats", totalGuesses:"Total guesses", splitLabel:"Success rate",
+    statsTitle:"Live stats", totalGuesses:"Total guesses", splitLabel:"Guessed correctly",
     genderPred:"Gender predictions", dateGuessesTitle:"Popular date guesses",
     namesTitle:"Suggested names", tabGirl:"👧 Girls", tabBoy:"👦 Boys",
     backBtn:"← Back", adminLoginTitle:"Admin login", adminLoginSub:"For parents only — see all entries with details.",
@@ -361,7 +361,7 @@ const i18n = {
     dateHeading:"Gjett fødselsdatoen", dateLabel:"Tips: terminen er 17. oktober",
     namesHeading:"Foreslå navn", namesSub:"Opptil 3 navn per kjønn (valgfritt)",
     girlNamesLbl:"👧 Jentenavn", boyNamesLbl:"👦 Guttenavn",
-    submitBtn:"Send inn", statsLink:"Se statistikk →", adminLink:"Adminpålogging",
+    submitBtn:"Send inn gjetningen", statsLink:"Se statistikk →", adminLink:"Adminpålogging",
     thanksTitle:"Takk for at du deltok!", thanksSub:"Gjetningen din er registrert. Sjekk inn igjen for å se resultatene!",
     seeStatsBtn:"Se live-statistikk", anotherBtn:"← Gjett igjen",
     statsTitle:"Live-statistikk", totalGuesses:"Totalt antall gjetninger", splitLabel:"Gjettet riktig",
@@ -570,7 +570,7 @@ function renderStats(entries) {
   const boyPct=total?100-girlPct:0;
   document.getElementById('stats-metrics').innerHTML=`
     <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
-    <div class="metric"><div class="val">${girlPct}%</div><div class="lbl">${t('splitLabel')}</div></div>
+    <div class="metric"><div class="val">${boyPct}%</div><div class="lbl">${t('splitLabel')}</div></div>
   `;
   document.getElementById('gender-bars').innerHTML=`
     <div class="stat-row"><span class="stat-label">${t('girlBtn')}</span><div class="bar-wrap"><div class="bar-fill bar-girl" style="width:${girlPct}%"></div></div><span class="stat-num">${girls}</span></div>
