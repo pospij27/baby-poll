@@ -599,7 +599,7 @@ function renderNamesTab() {
     const raw=currentNamesTab==='girl'?e.girl_names:e.boy_names;
     if(raw) raw.split(',').forEach(n=>{ n=n.trim(); if(n) nameCounts[n]=(nameCounts[n]||0)+1; });
   });
-  const sorted=Object.entries(nameCounts).sort((a,b)=>b[1]-a[1]);
+  const sorted=Object.entries(nameCounts).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0]));
   document.getElementById('names-stats').innerHTML=sorted.length
     ?sorted.map(([n,c])=>`<div class="entry-row"><div class="entry-row-inner"><span>${n}</span><span style="font-weight:500;color:var(--text);">${t('votes')(c)}</span></div></div>`).join('')
     :`<p style="font-size:13px;color:var(--text2);">${t('noNames')}</p>`;
