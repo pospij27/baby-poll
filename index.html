@@ -64,7 +64,7 @@
   .bar-boy { background: var(--blue-border); }
   .bar-neutral { background: var(--text3); }
   .stat-num { font-size: 13px; font-weight: 500; color: var(--text); min-width: 28px; text-align: right; }
-  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
   .metric { background: var(--bg2); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
   .metric .val { font-size: 22px; font-weight: 500; color: var(--text); }
   .metric .lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
@@ -570,7 +570,8 @@ function renderStats(entries) {
   const boyPct=total?100-girlPct:0;
   document.getElementById('stats-metrics').innerHTML=`
     <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
-    <div class="metric"><div class="val">${boyPct}%</div><div class="lbl">${t('splitLabel')}</div></div>
+    <div class="metric"><div class="val" style="color:#D4537E;">${girlPct}%</div><div class="lbl">${t('girlBtn')}</div></div>
+    <div class="metric"><div class="val" style="color:#378ADD;">${boyPct}%</div><div class="lbl">${t('boyBtn')}</div></div>
   `;
   document.getElementById('gender-bars').innerHTML=`
     <div class="stat-row"><span class="stat-label">${t('girlBtn')}</span><div class="bar-wrap"><div class="bar-fill bar-girl" style="width:${girlPct}%"></div></div><span class="stat-num">${girls}</span></div>
