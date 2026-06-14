@@ -1,7 +1,7 @@
 # 👶 Baby Pool
 A multilingual baby guessing game for friends and family. Guests can guess the gender, predict the delivery date, and suggest names — all anonymously. A live stats page shows how everyone voted.
 
-Languages: 🇬🇧 English · 🇨🇿 Czech · 🇺🇦 Ukrainian
+Languages: 🇬🇧 English · 🇨🇿 Česky · 🇺🇦 Yкраїнська · 🇳🇴 Norsk
 
 Features:
 
