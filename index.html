@@ -579,7 +579,7 @@ function renderStats(entries) {
   `;
   const dateCounts={};
   entries.forEach(e=>{ if(e.date) dateCounts[e.date]=(dateCounts[e.date]||0)+1; });
-  const sortedDates=Object.entries(dateCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const sortedDates=Object.entries(dateCounts).sort((a,b)=>b[1]-a[1] || new Date(a[0])-new Date(b[0]));
   document.getElementById('date-guesses').innerHTML=sortedDates.length
     ?sortedDates.map(([d,c])=>`<div class="stat-row"><span class="stat-label" style="min-width:90px;">${formatDate(d)}</span><div class="bar-wrap"><div class="bar-fill bar-neutral" style="width:${Math.round(c/total*100)}%"></div></div><span class="stat-num">${c}</span></div>`).join('')
     :`<p>${t('noDateGuesses')}</p>`;
