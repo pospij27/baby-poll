@@ -11,3 +11,5 @@ Features:
 - Password-protected admin panel with CSV export
 
 Built with plain HTML/CSS/JS, hosted on GitHub Pages, data stored in Supabase.
+
+https://pospij27.github.io/baby-poll/
