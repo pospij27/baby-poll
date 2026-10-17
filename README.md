@@ -1,15 +1,11 @@
 # 👶 Baby Pool
-A multilingual baby guessing game for friends and family. Guests can guess the gender, predict the delivery date, and suggest names — all anonymously. A live stats page shows how everyone voted.
+The guessing game is closed — the site now shows the final results: gender predictions, birth date guesses (as a chart of guesses per day of October) and the suggested names.
 
 Languages: 🇬🇧 English · 🇨🇿 Česky · 🇺🇦 Yкраїнська · 🇳🇴 Norsk
-
-Features:
-
-- Gender, date and name suggestions
-- Optional gender reveal after submitting
-- Live statistics for all participants
-- Password-protected admin panel with CSV export
 
 Built with plain HTML/CSS/JS, hosted on GitHub Pages, data stored in Supabase.
 
 https://pospij27.github.io/baby-poll/
+
+## Archive
+The original voting site (guess form, gender reveal, admin panel) is kept in [`archive/index.html`](archive/index.html) and is still reachable at https://pospij27.github.io/baby-poll/archive/.
