@@ -6,13 +6,14 @@
 <title>Baby Pool results 👶</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   :root {
     --bg: #ffffff; --bg2: #f5f5f3; --bg3: #eeede9;
     --text: #1a1a18; --text2: #5f5e5a; --text3: #888780;
     --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
     --pink-bg: #FBEAF0; --pink-border: #D4537E; --pink-text: #72243E;
     --blue-bg: #E6F1FB; --blue-border: #378ADD; --blue-text: #0C447C;
-    --bar: #3B7A2A; --bar-past: #E86A5A; --grid: #ebeae6; --due-band: #efeee9;
+    --bar: #3B7A2A; --bar-past: #E86A5A; --bar-birth: #B7791F; --bar-other: #8F8D86; --grid: #ebeae6; --due-band: #efeee9;
     --red: #A32D2D;
     --radius: 12px; --radius-sm: 8px;
   }
@@ -23,7 +24,7 @@
       --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
       --pink-bg: #3a1a24; --pink-border: #D4537E; --pink-text: #f4c0d1;
       --blue-bg: #0e2236; --blue-border: #378ADD; --blue-text: #B5D4F4;
-      --bar: #3E9A78; --bar-past: #E8625A; --grid: #2c2c29; --due-band: #262624;
+      --bar: #3E9A78; --bar-past: #E8625A; --bar-birth: #BC8423; --bar-other: #75736C; --grid: #2c2c29; --due-band: #262624;
     }
   }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
@@ -64,6 +65,13 @@
   .key { margin-right: 6px; vertical-align: -1px; }
   .key-past { background: var(--bar-past); }
   .key-future { background: var(--bar); }
+  .key-birth { background: var(--bar-birth); }
+  .key-other { background: var(--bar-other); }
+  .baby-photo { display: block; width: 160px; height: 160px; object-fit: cover; border-radius: 50%; margin: 0 auto 12px; border: 3px solid var(--bg); }
+  .announce { font-size: 15px; font-weight: 500; color: var(--text); margin: 2px 0 6px; }
+  .result-line { font-size: 13px; font-weight: 500; color: var(--text); margin-top: 0.75rem; }
+  .name-note { font-size: 13px; color: var(--text); margin: -0.25rem 0 0.75rem; }
+  .entry-row.name-hit span:first-child { color: var(--text); font-weight: 600; }
   .outside-note { font-size: 12px; color: var(--text2); margin-top: 0.75rem; }
   details { margin-top: 0.75rem; font-size: 13px; color: var(--text2); }
   summary { cursor: pointer; font-size: 12px; }
@@ -89,8 +97,10 @@
 
 <main>
   <div class="hero">
-    <div class="hero-emoji">👶</div>
+    <img class="baby-photo" id="baby-photo" alt="" hidden />
+    <div class="hero-emoji" id="hero-emoji">👶</div>
     <h1 id="t-title"></h1>
+    <p class="announce" id="announce" hidden></p>
     <p id="t-subtitle"></p>
   </div>
 
@@ -104,13 +114,11 @@
   <div class="card">
     <h3 id="t-date-title"></h3>
     <p class="card-sub" id="t-date-sub"></p>
-    <div class="legend">
-      <span><i class="key-past"></i><span id="t-past"></span></span>
-      <span><i class="key-future"></i><span id="t-future"></span></span>
-    </div>
+    <div class="legend" id="legend"></div>
     <div class="chart-wrap" id="date-chart">
       <div class="chart-tip" id="chart-tip"></div>
     </div>
+    <p class="result-line" id="date-result"></p>
     <p class="outside-note" id="outside-note"></p>
     <details>
       <summary id="t-table-toggle"></summary>
@@ -120,6 +128,7 @@
 
   <div class="card">
     <h3 id="t-names-title"></h3>
+    <p class="name-note" id="name-note"></p>
     <div class="tab-row">
       <div class="tab active-tab" id="tab-girl" onclick="switchNamesTab('girl')"></div>
       <div class="tab" id="tab-boy" onclick="switchNamesTab('boy')"></div>
@@ -136,8 +145,19 @@ const DUE_DAY = 17;   // due date: 17 October
 const MONTH = 10;     // October
 const DAYS_IN_MONTH = 31;
 
+// ── Fill this in once the baby has arrived (leave date empty until then) ──
+const BABY = {
+  date: '',      // birth date, e.g. '2026-10-19'
+  time: '',      // optional, e.g. '14:32'
+  gender: '',    // 'girl' or 'boy'
+  name: '',      // optional, e.g. 'Jakub'
+  weight: '',    // optional, e.g. '3.4 kg'
+  photo: '',     // optional image file next to this page, e.g. 'baby.jpg'
+};
+const born = Boolean(BABY.date);
+
 let lang = 'en';
-let currentNamesTab = 'girl';
+let currentNamesTab = born && BABY.gender ? BABY.gender : 'girl';
 let entries = null;
 let loadFailed = false;
 
@@ -165,6 +185,16 @@ const i18n = {
     loading: "Loading…", loadError: "Couldn't load the results. Please try again later.",
     guesses: c => `${c} guess${c === 1 ? '' : 'es'}`,
     votes: c => `${c} vote${c === 1 ? '' : 's'}`,
+    itsGirl: "It's a girl! 👧", itsBoy: "It's a boy! 👦",
+    welcome: n => `Welcome, ${n}!`,
+    bornOn: (d, time) => `Born ${d}${time ? ` at ${time}` : ''}`,
+    subtitleBorn: "Thanks to everyone who played! Here's how you did.",
+    genderRight: "Guessed the gender", exactDay: "Guessed the exact day",
+    birthDay: "Birth day", otherDays: "Other guesses", exact: "Exact! 🎯",
+    days: n => `${n} day${n === 1 ? '' : 's'}`, early: s => `${s} early`, late: s => `${s} late`,
+    exactHit: g => `🎯 ${g} hit the exact day!`, closest: (d, g) => `Closest guess: ${d} off (${g})`,
+    nameSuggested: (n, v) => `⭐ The name ${n} was suggested — ${v}!`,
+    nameSecret: n => `🤫 Nobody suggested the name ${n} — well kept secret!`,
   },
   cs: {
     locale: 'cs-CZ', docTitle: 'Výsledky tipovačky 👶',
@@ -180,6 +210,16 @@ const i18n = {
     loading: "Načítám…", loadError: "Výsledky se nepodařilo načíst. Zkus to prosím později.",
     guesses: c => `${c} ${czechPlural(c, 'tip', 'tipy', 'tipů')}`,
     votes: c => `${c} ${czechPlural(c, 'hlas', 'hlasy', 'hlasů')}`,
+    itsGirl: "Je to holčička! 👧", itsBoy: "Je to klouček! 👦",
+    welcome: n => `Vítej na světě, ${n}!`,
+    bornOn: (d, time, g) => `${g === 'girl' ? 'Narodila se' : 'Narodil se'} ${d}${time ? ` v ${time}` : ''}`,
+    subtitleBorn: "Díky všem, kdo tipovali! Takhle jste se trefili.",
+    genderRight: "Uhodli pohlaví", exactDay: "Trefili přesný den",
+    birthDay: "Den narození", otherDays: "Ostatní tipy", exact: "Přesně! 🎯",
+    days: n => `${n} ${czechPlural(n, 'den', 'dny', 'dní')}`, early: s => `o ${s} dřív`, late: s => `o ${s} později`,
+    exactHit: g => `🎯 ${g} na přesný den!`, closest: (d, g) => `Nejbližší tip: o ${d} vedle (${g})`,
+    nameSuggested: (n, v) => `⭐ Jméno ${n} bylo mezi návrhy — ${v}!`,
+    nameSecret: n => `🤫 Jméno ${n} nikdo nenavrhl — dobře utajené!`,
   },
   uk: {
     locale: 'uk-UA', docTitle: 'Результати опитування 👶',
@@ -195,6 +235,16 @@ const i18n = {
     loading: "Завантаження…", loadError: "Не вдалося завантажити результати. Спробуй пізніше.",
     guesses: c => `${c} ${slavicPlural(c, 'прогноз', 'прогнози', 'прогнозів')}`,
     votes: c => `${c} ${slavicPlural(c, 'голос', 'голоси', 'голосів')}`,
+    itsGirl: "Це дівчинка! 👧", itsBoy: "Це хлопчик! 👦",
+    welcome: n => `Ласкаво просимо, ${n}!`,
+    bornOn: (d, time, g) => `${g === 'girl' ? 'Народилася' : 'Народився'} ${d}${time ? ` о ${time}` : ''}`,
+    subtitleBorn: "Дякуємо всім за участь! Ось як ви вгадали.",
+    genderRight: "Вгадали стать", exactDay: "Вгадали точний день",
+    birthDay: "День народження", otherDays: "Інші прогнози", exact: "Точно! 🎯",
+    days: n => `${n} ${slavicPlural(n, 'день', 'дні', 'днів')}`, early: s => `на ${s} раніше`, late: s => `на ${s} пізніше`,
+    exactHit: g => `🎯 ${g} — точно в ціль!`, closest: (d, g) => `Найближчий прогноз: різниця ${d} (${g})`,
+    nameSuggested: (n, v) => `⭐ Ім'я ${n} було серед пропозицій — ${v}!`,
+    nameSecret: n => `🤫 Ім'я ${n} ніхто не запропонував — добре збережений секрет!`,
   },
   no: {
     locale: 'nb-NO', docTitle: 'Resultater 👶',
@@ -210,6 +260,16 @@ const i18n = {
     loading: "Laster…", loadError: "Kunne ikke laste resultatene. Prøv igjen senere.",
     guesses: c => `${c} gjetning${c === 1 ? '' : 'er'}`,
     votes: c => `${c} stemme${c === 1 ? '' : 'r'}`,
+    itsGirl: "Det er en jente! 👧", itsBoy: "Det er en gutt! 👦",
+    welcome: n => `Velkommen, ${n}!`,
+    bornOn: (d, time) => `Født ${d}${time ? ` kl. ${time}` : ''}`,
+    subtitleBorn: "Takk til alle som var med! Slik gikk det.",
+    genderRight: "Gjettet kjønnet", exactDay: "Traff dagen",
+    birthDay: "Fødselsdag", otherDays: "Andre gjetninger", exact: "Helt riktig! 🎯",
+    days: n => `${n} dag${n === 1 ? '' : 'er'}`, early: s => `${s} for tidlig`, late: s => `${s} for sent`,
+    exactHit: g => `🎯 ${g} traff dagen!`, closest: (d, g) => `Nærmeste gjetning: ${d} unna (${g})`,
+    nameSuggested: (n, v) => `⭐ Navnet ${n} ble foreslått — ${v}!`,
+    nameSecret: n => `🤫 Ingen foreslo navnet ${n} — godt bevart hemmelighet!`,
   }
 };
 
@@ -224,12 +284,48 @@ function formatDayMonth(year, month, day) {
     .format(new Date(year, month - 1, day));
 }
 
+const MS_DAY = 86400000;
+function dayNumber(yy, mm, dd) { return Date.UTC(yy, mm - 1, dd) / MS_DAY; }
+function parseDate(s) { return s.split('-').map(Number); }
+function birthNumber() { return dayNumber(...parseDate(BABY.date)); }
+function todayNumber() { const n = new Date(); return dayNumber(n.getFullYear(), n.getMonth() + 1, n.getDate()); }
+
+// Before the birth a day is 'past' (no longer possible) or 'future'; afterwards it is 'birth' or 'other'.
+function dateState(yy, mm, dd) {
+  const n = dayNumber(yy, mm, dd);
+  if (born) return n === birthNumber() ? 'birth' : 'other';
+  return n < todayNumber() ? 'past' : 'future';
+}
+function dateStatus(yy, mm, dd) {
+  if (!born) return t(dateState(yy, mm, dd));
+  const diff = dayNumber(yy, mm, dd) - birthNumber();
+  if (diff === 0) return t('exact');
+  return t(diff < 0 ? 'early' : 'late')(t('days')(Math.abs(diff)));
+}
+const STATE_FILL = { past: 'var(--bar-past)', future: 'var(--bar)', birth: 'var(--bar-birth)', other: 'var(--bar-other)' };
+const STATE_LABEL = { past: 'past', future: 'future', birth: 'birthDay', other: 'otherDays' };
+
+function normalizeName(n) { return n.trim().toLocaleLowerCase().normalize('NFD').replace(/\p{M}/gu, ''); }
+
 function applyTranslations() {
   document.documentElement.lang = lang;
-  document.title = t('docTitle');
+  const babyGender = t(BABY.gender === 'girl' ? 'itsGirl' : 'itsBoy');
+  const heading = !born ? t('title') : BABY.name ? t('welcome')(BABY.name) : babyGender;
+  document.title = born ? `${heading} 👶` : t('docTitle');
+  document.getElementById('t-title').textContent = heading;
+  document.getElementById('t-subtitle').textContent = t(born ? 'subtitleBorn' : 'subtitle');
+  const announce = document.getElementById('announce');
+  announce.hidden = !born;
+  if (born) {
+    const parts = [];
+    if (BABY.name && BABY.gender) parts.push(babyGender);
+    parts.push(t('bornOn')(formatDayMonth(...parseDate(BABY.date)), BABY.time, BABY.gender));
+    if (BABY.weight) parts.push(BABY.weight);
+    announce.textContent = parts.join(' · ');
+  }
   [
-    ['t-title','title'], ['t-subtitle','subtitle'], ['t-gender-pred','genderPred'],
-    ['t-date-title','dateTitle'], ['t-date-sub','dateSub'], ['t-past','past'], ['t-future','future'], ['t-table-toggle','tableToggle'],
+    ['t-gender-pred','genderPred'],
+    ['t-date-title','dateTitle'], ['t-date-sub','dateSub'], ['t-table-toggle','tableToggle'],
     ['t-names-title','namesTitle'], ['tab-girl','tabGirl'], ['tab-boy','tabBoy'],
   ].forEach(([id, key]) => { document.getElementById(id).textContent = t(key); });
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active-lang', b.dataset.lang === lang));
@@ -270,14 +366,25 @@ function renderGender() {
   const boys = total - girls;
   const girlPct = total ? Math.round(girls / total * 100) : 0;
   const boyPct = total ? 100 - girlPct : 0;
-  document.getElementById('metrics').innerHTML = `
-    <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
-    <div class="metric"><div class="val">${girlPct}%</div><div class="lbl">${t('girl')}</div></div>
-    <div class="metric"><div class="val">${boyPct}%</div><div class="lbl">${t('boy')}</div></div>
-  `;
+  if (born) {
+    const right = entries.filter(e => e.gender === BABY.gender).length;
+    const exact = entries.filter(e => e.date === BABY.date).length;
+    document.getElementById('metrics').innerHTML = `
+      <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
+      <div class="metric"><div class="val">${total ? Math.round(right / total * 100) : 0}%</div><div class="lbl">${t('genderRight')}</div></div>
+      <div class="metric"><div class="val">${exact}</div><div class="lbl">${t('exactDay')}</div></div>
+    `;
+  } else {
+    document.getElementById('metrics').innerHTML = `
+      <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalGuesses')}</div></div>
+      <div class="metric"><div class="val">${girlPct}%</div><div class="lbl">${t('girl')}</div></div>
+      <div class="metric"><div class="val">${boyPct}%</div><div class="lbl">${t('boy')}</div></div>
+    `;
+  }
+  const label = g => born && BABY.gender === g ? `<strong style="color:var(--text);">${t(g)} ✓</strong>` : t(g);
   document.getElementById('gender-bars').innerHTML = `
-    <div class="stat-row"><span class="stat-label">${t('girl')}</span><div class="bar-wrap"><div class="bar-fill bar-girl" style="width:${girlPct}%"></div></div><span class="stat-num">${girls}</span></div>
-    <div class="stat-row"><span class="stat-label">${t('boy')}</span><div class="bar-wrap"><div class="bar-fill bar-boy" style="width:${boyPct}%"></div></div><span class="stat-num">${boys}</span></div>
+    <div class="stat-row"><span class="stat-label">${label('girl')}</span><div class="bar-wrap"><div class="bar-fill bar-girl" style="width:${girlPct}%"></div></div><span class="stat-num">${girls}</span></div>
+    <div class="stat-row"><span class="stat-label">${label('boy')}</span><div class="bar-wrap"><div class="bar-fill bar-boy" style="width:${boyPct}%"></div></div><span class="stat-num">${boys}</span></div>
   `;
 }
 
@@ -316,7 +423,7 @@ function renderDateChart() {
   const max = Math.max(...perDay);
 
   const W = Math.max(wrap.clientWidth, 260), H = 220;
-  const m = { top: 20, right: 4, bottom: 40, left: 26 };
+  const m = { top: born ? 36 : 20, right: 4, bottom: 40, left: 26 };
   const plotW = W - m.left - m.right, plotH = H - m.top - m.bottom;
   const slot = plotW / DAYS_IN_MONTH;
   const barW = Math.min(24, Math.max(slot - 2, 2));
@@ -324,13 +431,14 @@ function renderDateChart() {
   const yTop = Math.max(Math.ceil(max / step) * step, step);
   const y = v => m.top + plotH - (v / yTop) * plotH;
   const cx = day => m.left + slot * (day - 0.5);
-  // days before today are no longer possible birth dates
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const isPastDate = (yy, mm, dd) => new Date(yy, mm - 1, dd) < today;
-  const isPast = day => isPastDate(year, MONTH, day);
-  const keyed = (yy, mm, dd) => `<i class="key ${isPastDate(yy, mm, dd) ? 'key-past' : 'key-future'}"></i>${escapeHtml(formatDayMonth(yy, mm, dd))}`;
-  const status = (yy, mm, dd) => escapeHtml(t(isPastDate(yy, mm, dd) ? 'past' : 'future'));
+  const keyed = (yy, mm, dd) => `<i class="key key-${dateState(yy, mm, dd)}"></i>${escapeHtml(formatDayMonth(yy, mm, dd))}`;
+  const status = (yy, mm, dd) => escapeHtml(dateStatus(yy, mm, dd));
+  // the day of the birth, if it falls in the charted month
+  const birthDay = born && parseDate(BABY.date)[1] === MONTH && parseDate(BABY.date)[0] === year ? parseDate(BABY.date)[2] : null;
+
+  const legendStates = born ? ['birth', 'other'] : ['past', 'future'];
+  document.getElementById('legend').innerHTML = legendStates
+    .map(st => `<span><i class="key-${st}"></i>${escapeHtml(t(STATE_LABEL[st]))}</span>`).join('');
 
   const showLabel = slot >= 16 ? () => true
     : slot >= 9 ? d => d % 2 === 1
@@ -339,6 +447,11 @@ function renderDateChart() {
   let svg = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${escapeHtml(t('dateTitle'))}">`;
   // due date band
   svg += `<rect x="${cx(DUE_DAY) - slot / 2}" y="${m.top}" width="${slot}" height="${plotH}" fill="var(--due-band)"/>`;
+  // birth day band + marker above the plot
+  if (birthDay) {
+    svg += `<rect x="${cx(birthDay) - slot / 2}" y="${m.top}" width="${slot}" height="${plotH}" fill="var(--bar-birth)" opacity="0.15"/>`;
+    svg += `<text x="${cx(birthDay)}" y="${m.top - 20}" text-anchor="middle" font-size="15">🎉</text>`;
+  }
   // gridlines + y ticks
   for (let v = 0; v <= yTop; v += step) {
     svg += `<line x1="${m.left}" x2="${W - m.right}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/>`;
@@ -349,13 +462,13 @@ function renderDateChart() {
     const c = perDay[d];
     svg += `<g class="col" data-day="${d}">`;
     if (c > 0) {
-      svg += `<path class="bar" d="${columnPath(cx(d) - barW / 2, y(c), barW, y(0) - y(c))}" fill="${isPast(d) ? 'var(--bar-past)' : 'var(--bar)'}"/>`;
+      svg += `<path class="bar" d="${columnPath(cx(d) - barW / 2, y(c), barW, y(0) - y(c))}" fill="${STATE_FILL[dateState(year, MONTH, d)]}"/>`;
       if (c === max) svg += `<text x="${cx(d)}" y="${y(c) - 6}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)">${c}</text>`;
     }
-    svg += `<rect class="hit" x="${cx(d) - slot / 2}" y="${m.top}" width="${slot}" height="${plotH + 18}" tabindex="0" aria-label="${escapeHtml(formatDayMonth(year, MONTH, d) + ': ' + t('guesses')(c) + ' (' + t(isPast(d) ? 'past' : 'future') + ')')}"/>`;
+    svg += `<rect class="hit" x="${cx(d) - slot / 2}" y="${m.top}" width="${slot}" height="${plotH + 18}" tabindex="0" aria-label="${escapeHtml(formatDayMonth(year, MONTH, d) + ': ' + t('guesses')(c) + ' (' + dateStatus(year, MONTH, d) + ')')}"/>`;
     svg += `</g>`;
-    if (showLabel(d) || d === DUE_DAY) {
-      const due = d === DUE_DAY;
+    if (showLabel(d) || d === DUE_DAY || d === birthDay) {
+      const due = d === DUE_DAY || d === birthDay;
       svg += `<text x="${cx(d)}" y="${m.top + plotH + 15}" text-anchor="middle" font-size="11" fill="${due ? 'var(--text)' : 'var(--text3)'}" font-weight="${due ? 600 : 400}">${d}</text>`;
     }
   }
@@ -369,8 +482,8 @@ function renderDateChart() {
     const d = Number(g.dataset.day);
     wrap.querySelectorAll('.col.hover').forEach(el => el.classList.remove('hover'));
     g.classList.add('hover');
-    tip.innerHTML = `<strong>${escapeHtml(formatDayMonth(year, MONTH, d))}</strong> · ${escapeHtml(t('guesses')(perDay[d]))}<br>${escapeHtml(t(isPast(d) ? 'past' : 'future'))}`;
-    const top = (perDay[d] > 0 ? y(perDay[d]) : y(0)) - (perDay[d] === max ? 16 : 0);
+    tip.innerHTML = `<strong>${escapeHtml(formatDayMonth(year, MONTH, d))}</strong> · ${escapeHtml(t('guesses')(perDay[d]))}<br>${escapeHtml(dateStatus(year, MONTH, d))}`;
+    const top = d === birthDay ? m.top - 38 : (perDay[d] > 0 ? y(perDay[d]) : y(0)) - (perDay[d] === max ? 16 : 0);
     const left = Math.min(Math.max(cx(d) / W * wrap.clientWidth, 70), wrap.clientWidth - 70);
     tip.style.left = `${left}px`;
     tip.style.top = `${top / H * wrap.clientHeight}px`;
@@ -386,6 +499,17 @@ function renderDateChart() {
     g.addEventListener('pointerleave', hideTip);
     g.addEventListener('focusout', hideTip);
   });
+
+  // how close the guesses came, once the baby is here
+  let result = '';
+  if (born) {
+    const diffs = entries.filter(e => e.date).map(e => Math.abs(dayNumber(...parseDate(e.date)) - birthNumber()));
+    if (diffs.length) {
+      const best = Math.min(...diffs), bestCount = diffs.filter(x => x === best).length;
+      result = best === 0 ? t('exactHit')(t('guesses')(bestCount)) : t('closest')(t('days')(best), t('guesses')(bestCount));
+    }
+  }
+  document.getElementById('date-result').textContent = result;
 
   // guesses outside October
   const outsideList = Object.entries(outside).sort((a, b) => a[0].localeCompare(b[0]));
@@ -423,8 +547,20 @@ function renderNamesTab() {
     if (raw) raw.split(',').forEach(n => { n = n.trim(); if (n) nameCounts[n] = (nameCounts[n] || 0) + 1; });
   });
   const sorted = Object.entries(nameCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  const babyName = born && BABY.name ? normalizeName(BABY.name) : null;
+  const note = document.getElementById('name-note');
+  note.textContent = '';
+  if (babyName) {
+    // how many guests suggested the chosen name (in the baby's gender list, or either list if gender is unset)
+    const hits = entries.filter(e => [BABY.gender !== 'boy' ? e.girl_names : '', BABY.gender !== 'girl' ? e.boy_names : '']
+      .join(',').split(',').some(n => n.trim() && normalizeName(n) === babyName)).length;
+    note.textContent = hits ? t('nameSuggested')(BABY.name, t('votes')(hits)) : t('nameSecret')(BABY.name);
+  }
   document.getElementById('names-stats').innerHTML = sorted.length
-    ? sorted.map(([n, c]) => `<div class="entry-row"><span>${escapeHtml(n)}</span><span style="font-weight:500;color:var(--text);">${escapeHtml(t('votes')(c))}</span></div>`).join('')
+    ? sorted.map(([n, c]) => {
+        const hit = babyName && normalizeName(n) === babyName;
+        return `<div class="entry-row${hit ? ' name-hit' : ''}"><span>${hit ? '⭐ ' : ''}${escapeHtml(n)}</span><span style="font-weight:500;color:var(--text);">${escapeHtml(t('votes')(c))}</span></div>`;
+      }).join('')
     : `<p class="empty">${escapeHtml(t('noNames'))}</p>`;
 }
 
@@ -434,6 +570,15 @@ new ResizeObserver(() => {
   resizeTimer = setTimeout(() => { if (entries) renderDateChart(); }, 100);
 }).observe(document.getElementById('date-chart'));
 
+if (born) {
+  document.getElementById('hero-emoji').textContent = '🎉';
+  if (BABY.photo) {
+    const img = document.getElementById('baby-photo');
+    img.src = BABY.photo; img.alt = BABY.name; img.hidden = false;
+    document.getElementById('hero-emoji').hidden = true;
+  }
+}
+switchNamesTab(currentNamesTab);
 applyTranslations();
 render();
 loadEntries()

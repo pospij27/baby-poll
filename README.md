@@ -1,5 +1,5 @@
 # 👶 Baby Pool
-The guessing game is closed — the site now shows the final results: gender predictions, birth date guesses (as a chart of guesses per day of October) and the suggested names.
+The guessing game is closed — the site now shows the final results: gender predictions, birth date guesses (as a chart of guesses per day of October) and the suggested names. Guesses are anonymous; the page never shows who guessed what.
 
 Languages: 🇬🇧 English · 🇨🇿 Česky · 🇺🇦 Yкраїнська · 🇳🇴 Norsk
 
@@ -7,5 +7,24 @@ Built with plain HTML/CSS/JS, hosted on GitHub Pages, data stored in Supabase.
 
 https://pospij27.github.io/baby-poll/
 
+## When the baby arrives
+Open `index.html`, find the `BABY` block near the top of the script and fill it in:
+
+```js
+const BABY = {
+  date: '2026-10-19',  // birth date (required — this switches the page into "arrived" mode)
+  time: '14:32',       // optional
+  gender: 'boy',       // 'girl' or 'boy'
+  name: 'Jakub',       // optional
+  weight: '3.4 kg',    // optional
+  photo: 'baby.jpg',   // optional image file uploaded next to index.html
+};
+```
+
+The page then announces the birth, marks the birth day on the chart, shows how many guessed the gender and the exact day, how close the nearest guess was, and whether the baby's name was among the suggestions.
+
+## Database lock-down
+Run [`supabase/lock-down.sql`](supabase/lock-down.sql) once in the Supabase SQL Editor. It makes the table read-only for the public key and hides the guessers' names.
+
 ## Archive
-The original voting site (guess form, gender reveal, admin panel) is kept in [`archive/index.html`](archive/index.html) and is still reachable at https://pospij27.github.io/baby-poll/archive/.
+The original voting site is kept read-only in [`archive/index.html`](archive/index.html) (https://pospij27.github.io/baby-poll/archive/).

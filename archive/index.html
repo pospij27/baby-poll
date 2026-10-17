@@ -166,12 +166,11 @@
     <p class="reveal-hint" id="t-reveal-hint"></p>
   </div>
 
-  <button class="btn primary" id="submit-btn" onclick="submitVote()">
-    <span id="t-submit-btn"></span>
-  </button>
+  <div class="card" style="text-align:center; margin-top:1rem;">
+    <p id="t-poll-closed" style="font-weight:500; color:var(--text);"></p>
+    <a class="btn primary" href="../" style="display:block; text-decoration:none;" id="t-results-link"></a>
+  </div>
   <button class="nav-link" id="t-stats-link" onclick="showStats()"></button>
-  <p id="t-stats-warning" style="font-size:11px; color:var(--text3); text-align:center; margin-top:4px;"></p>
-  <button class="nav-link" id="t-admin-link" onclick="showAdminLogin()"></button>
 </div>
 
 <!-- THANKS -->
@@ -210,48 +209,11 @@
   <button class="btn" onclick="showVote()"><span id="t-back-btn"></span></button>
 </div>
 
-<!-- ADMIN LOGIN -->
-<div id="screen-admin-login" class="screen">
-  <h2 id="t-admin-login-title"></h2>
-  <p id="t-admin-login-sub" style="margin-bottom:1rem;"></p>
-  <div class="card">
-    <label id="t-pw-label"></label>
-    <input type="password" id="admin-pw" onkeydown="if(event.key==='Enter')adminLogin()" />
-    <div class="field-error" id="pw-error"></div>
-  </div>
-  <button class="btn primary" onclick="adminLogin()"><span id="t-login-btn"></span></button>
-  <button class="btn" style="margin-top:8px;" onclick="showVote()"><span id="t-back-btn2"></span></button>
-</div>
-
-<!-- ADMIN -->
-<div id="screen-admin" class="screen">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-    <h2 id="t-admin-title" style="margin-bottom:0;"></h2>
-    <button class="btn" style="width:auto;padding:4px 12px;font-size:13px;margin-top:0;" onclick="showVote()"><span id="t-logout-btn"></span></button>
-  </div>
-  <div class="metric-grid" id="admin-metrics"></div>
-  <div class="card">
-    <h3 id="t-all-entries"></h3>
-    <div id="admin-entries"></div>
-  </div>
-  <div class="card">
-    <h3 id="t-export-title"></h3>
-    <p id="t-export-sub"></p>
-    <button class="btn" style="margin-top:8px;" onclick="exportCSV()">⬇ <span id="t-export-btn"></span></button>
-  </div>
-  <div class="card">
-    <h3 style="color:var(--red);" id="t-danger-title"></h3>
-    <p id="t-danger-sub" style="margin-bottom:8px;"></p>
-    <button class="btn danger" onclick="clearAll()">🗑 <span id="t-clear-btn"></span></button>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 const SUPABASE_URL = "https://hknkoiiescuhzdsktwok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrbmtvaWllc2N1aHpkc2t0d29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxOTg3NTUsImV4cCI6MjA5NDc3NDc1NX0.fd-l_ayYxrmCG6nAtQziu3vfI2XavBtOO5n_y28yTok";
-const ADMIN_PASSWORD = "baby2024";
 const TABLE = "entries";
 
 let lang = 'en';
@@ -262,6 +224,7 @@ let hasSubmitted = false;
 
 const i18n = {
   en: {
+    pollClosed:"The poll is closed — thanks for playing!", resultsLink:"See the final results →",
     title:"Guess who's coming!",
     nameHeading:"What's your name?", namePlaceholder:"Enter your name",
     genderHeading:"What's your guess?", girlBtn:"👧 Girl", boyBtn:"👦 Boy",
@@ -293,6 +256,7 @@ const i18n = {
     statsWarning:"⚠ Please submit your guess before looking at the stats!",
   },
   cs: {
+    pollClosed:"Tipovačka je uzavřená — díky za účast!", resultsLink:"Zobrazit výsledky →",
     title:"Kdo přijde na svět?",
     nameHeading:"Jak se jmenuješ?", namePlaceholder:"Zadej své jméno",
     genderHeading:"Jaký je tvůj tip?", girlBtn:"👧 Holčička", boyBtn:"👦 Klouček",
@@ -324,6 +288,7 @@ const i18n = {
     statsWarning:"⚠ Prosím, nejdřív odešli svůj tip, než se podíváš na statistiky!",
   },
   uk: {
+    pollClosed:"Опитування закрито — дякуємо за участь!", resultsLink:"Переглянути результати →",
     title:"Хто до нас іде?",
     nameHeading:"Як тебе звати?", namePlaceholder:"Введи своє ім'я",
     genderHeading:"Яка твоя думка?", girlBtn:"👧 Дівчинка", boyBtn:"👦 Хлопчик",
@@ -355,6 +320,7 @@ const i18n = {
     statsWarning:"⚠ Будь ласка, спочатку надішли свій прогноз, перш ніж дивитися статистику!",
   },
   no: {
+    pollClosed:"Avstemningen er stengt — takk for at du var med!", resultsLink:"Se resultatene →",
     title:"Hvem kommer til verden?",
     nameHeading:"Ditt navn", nameLabel:"Hva heter du?", namePlaceholder:"Skriv inn navnet ditt",
     genderHeading:"Hva tror du?", girlBtn:"👧 Jente", boyBtn:"👦 Gutt",
@@ -409,7 +375,7 @@ function applyTranslations() {
     ['t-all-entries','allEntries'],['t-export-title','exportTitle'],['t-export-sub','exportSub'],
     ['t-export-btn','exportBtn'],['t-danger-title','dangerTitle'],['t-danger-sub','dangerSub'],['t-clear-btn','clearBtn'],
     ['t-reveal-label','revealLabel'],['t-reveal-hint','revealHint'],
-    ['t-stats-warning','statsWarning'],
+    ['t-poll-closed','pollClosed'],['t-results-link','resultsLink'],
   ];
   ids.forEach(([id,key])=>{ const el=document.getElementById(id); if(el) el.textContent=t(key); });
   const np=document.getElementById('guess-name'); if(np) np.placeholder=t('namePlaceholder');
@@ -448,19 +414,7 @@ async function sbFetch(path, options={}) {
 }
 
 async function loadEntries() {
-  return await sbFetch(`${TABLE}?order=created_at.asc&select=*`);
-}
-
-async function insertEntry(entry) {
-  await sbFetch(TABLE, {
-    method: 'POST',
-    prefer: 'return=minimal',
-    body: JSON.stringify(entry)
-  });
-}
-
-async function deleteAllEntries() {
-  await sbFetch(`${TABLE}?id=gte.0`, { method: 'DELETE' });
+  return await sbFetch(`${TABLE}?order=created_at.asc&select=gender,date,girl_names,boy_names`);
 }
 
 function clearErr(cardId, errId, inputId) {
@@ -487,56 +441,9 @@ function getSelectedGender() {
   return null;
 }
 
-async function submitVote() {
-  const name = document.getElementById('guess-name').value.trim();
-  const gender = getSelectedGender();
-  const date = document.getElementById('guess-date').value;
-  let valid = true;
-  if(!name) { showErr('card-name','err-name',t('errorName'),'guess-name'); valid=false; }
-  if(!gender) { showErr('card-gender','err-gender',t('errorGender'),null); valid=false; }
-  if(!date) { showErr('card-date','err-date',t('errorDate'),'guess-date'); valid=false; }
-  if(!valid) return;
-
-  const gNames=['gn1','gn2','gn3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
-  const bNames=['bn1','bn2','bn3'].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled=true; btn.innerHTML=`<span class="spinner"></span>${t('saving')}`;
-
-  try {
-    await insertEntry({ name, gender, date, girl_names: gNames.join(','), boy_names: bNames.join(',') });
-    const sumCard=document.getElementById('summary-card');
-    sumCard.innerHTML=`
-      <p style="margin-bottom:6px;"><strong>${t('nameRow')}:</strong> ${name}</p>
-      <p style="margin-bottom:6px;"><strong>${t('yourGuess')}:</strong> ${gender==='girl'?t('girlBtn'):t('boyBtn')} · ${formatDate(date)}</p>
-      ${gNames.length?`<p style="margin-top:4px;"><strong>${t('girlNamesRow')}:</strong> ${gNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
-      ${bNames.length?`<p style="margin-top:4px;"><strong>${t('boyNamesRow')}:</strong> ${bNames.map(n=>`<span class="names-chip">${n}</span>`).join('')}</p>`:''}
-    `;
-    const wantsReveal = document.getElementById('reveal-checkbox').checked;
-    lastSubmittedGender = 'boy';
-    lastWantsReveal = wantsReveal;
-    hasSubmitted = true;
-    document.getElementById('t-stats-link').style.display = 'block';
-    const revealEl = document.getElementById('reveal-result');
-    if (wantsReveal) {
-      revealEl.textContent = t('revealBoy');
-      revealEl.className = 'reveal-result boy';
-      revealEl.style.display = 'block';
-    } else {
-      revealEl.style.display = 'none';
-    }
-    showScreen('screen-thanks');
-  } catch(e) {
-    showToast('Error saving. Please try again.');
-  } finally {
-    btn.disabled=false; btn.innerHTML=`<span id="t-submit-btn">${t('submitBtn')}</span>`;
-  }
-}
-
 function formatDate(d) { if(!d)return'—'; const [y,m,day]=d.split('-'); return`${day}/${m}/${y}`; }
 
 function showVote() { showScreen('screen-vote'); resetVoteForm(); }
-function showAdminLogin() { showScreen('screen-admin-login'); }
 
 async function showStats() {
   showScreen('screen-stats');
@@ -606,65 +513,12 @@ function renderNamesTab() {
     :`<p style="font-size:13px;color:var(--text2);">${t('noNames')}</p>`;
 }
 
-function adminLogin() {
-  const pw=document.getElementById('admin-pw').value;
-  if(pw===ADMIN_PASSWORD){
-    document.getElementById('pw-error').classList.remove('show');
-    showScreen('screen-admin');
-    loadAdminEntries();
-  } else {
-    const el=document.getElementById('pw-error'); el.textContent=t('pwError'); el.classList.add('show');
-  }
-}
-
-async function loadAdminEntries() {
-  document.getElementById('admin-entries').innerHTML=`<p style="font-size:13px;color:var(--text2);">${t('loading')}</p>`;
-  try {
-    const entries=await loadEntries();
-    const total=entries.length;
-    const girls=entries.filter(e=>e.gender==='girl').length;
-    document.getElementById('admin-metrics').innerHTML=`
-      <div class="metric"><div class="val">${total}</div><div class="lbl">${t('totalEntries')}</div></div>
-      <div class="metric"><div class="val">${girls} / ${total-girls}</div><div class="lbl">${t('girlBoyVotes')}</div></div>
-    `;
-    const el=document.getElementById('admin-entries');
-    if(!total){ el.innerHTML=`<p style="font-size:13px;color:var(--text2);">${t('noEntries')}</p>`; return; }
-    el.innerHTML=[...entries].reverse().map(e=>`
-      <div class="entry-row" style="flex-direction:column;align-items:flex-start;gap:3px;">
-        <div class="entry-row-inner" style="width:100%;">
-          <span style="font-weight:500;color:var(--text);">${e.name||'—'}</span>
-          <span class="pill ${e.gender==='girl'?'pill-girl':'pill-boy'}">${e.gender==='girl'?t('girlBtn'):t('boyBtn')}</span>
-        </div>
-        <span>${t('dateRow')}: ${formatDate(e.date)}</span>
-        ${e.girl_names?`<span>${t('girlNamesRow')}: ${e.girl_names}</span>`:''}
-        ${e.boy_names?`<span>${t('boyNamesRow')}: ${e.boy_names}</span>`:''}
-        <span style="font-size:11px;color:var(--text3);">${new Date(e.created_at).toLocaleString()}</span>
-      </div>
-    `).join('');
-    window._adminEntries = entries;
-  } catch(e) { showToast('Error loading entries.'); }
-}
-
-async function exportCSV() {
-  const entries=window._adminEntries||[];
-  const rows=[['Name','Gender','Date guess','Girl names','Boy names','Submitted at']];
-  entries.forEach(e=>rows.push([e.name||'',e.gender,e.date,e.girl_names||'',e.boy_names||'',e.created_at]));
-  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  await navigator.clipboard.writeText(csv);
-  showToast(t('copied'));
-}
-
-async function clearAll() {
-  if(!confirm(t('confirmClear'))) return;
-  try { await deleteAllEntries(); window._adminEntries=[]; loadAdminEntries(); }
-  catch(e) { showToast('Error clearing entries.'); }
-}
-
 function showToast(msg) {
   const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'), 2500);
 }
 
+document.querySelectorAll('#screen-vote input, #screen-vote .gender-btn').forEach(el => el.disabled = true);
 applyTranslations();
 </script>
 </body>
