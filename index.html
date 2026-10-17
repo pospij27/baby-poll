@@ -12,7 +12,7 @@
     --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
     --pink-bg: #FBEAF0; --pink-border: #D4537E; --pink-text: #72243E;
     --blue-bg: #E6F1FB; --blue-border: #378ADD; --blue-text: #0C447C;
-    --bar: #5E8E24; --grid: #ebeae6; --due-band: #efeee9;
+    --bar: #3B7A2A; --bar-past: #E86A5A; --grid: #ebeae6; --due-band: #efeee9;
     --red: #A32D2D;
     --radius: 12px; --radius-sm: 8px;
   }
@@ -23,7 +23,7 @@
       --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
       --pink-bg: #3a1a24; --pink-border: #D4537E; --pink-text: #f4c0d1;
       --blue-bg: #0e2236; --blue-border: #378ADD; --blue-text: #B5D4F4;
-      --bar: #6FA33A; --grid: #2c2c29; --due-band: #262624;
+      --bar: #3E9A78; --bar-past: #E8625A; --grid: #2c2c29; --due-band: #262624;
     }
   }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
@@ -58,6 +58,9 @@
   .chart-tip { position: absolute; pointer-events: none; background: var(--text); color: var(--bg); font-size: 12px; padding: 5px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, calc(-100% - 8px)); opacity: 0; transition: opacity 0.1s; z-index: 5; }
   .chart-tip.show { opacity: 1; }
   .chart-tip strong { font-weight: 600; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--text2); margin-bottom: 0.5rem; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
   .outside-note { font-size: 12px; color: var(--text2); margin-top: 0.75rem; }
   details { margin-top: 0.75rem; font-size: 13px; color: var(--text2); }
   summary { cursor: pointer; font-size: 12px; }
@@ -98,6 +101,10 @@
   <div class="card">
     <h3 id="t-date-title"></h3>
     <p class="card-sub" id="t-date-sub"></p>
+    <div class="legend">
+      <span><i style="background:var(--bar-past)"></i><span id="t-past"></span></span>
+      <span><i style="background:var(--bar)"></i><span id="t-future"></span></span>
+    </div>
     <div class="chart-wrap" id="date-chart">
       <div class="chart-tip" id="chart-tip"></div>
     </div>
@@ -147,6 +154,7 @@ const i18n = {
     totalGuesses: "Total guesses", girl: "👧 Girl", boy: "👦 Boy",
     genderPred: "Gender predictions",
     dateTitle: "Birth date guesses", dateSub: "Number of guesses for each day of October",
+    past: "Already passed", future: "Still possible",
     dueDate: "Due date", outsideOct: "Guessed outside October:",
     tableToggle: "Show as table", dayCol: "Day", guessesCol: "Guesses",
     namesTitle: "Suggested names", tabGirl: "👧 Girls", tabBoy: "👦 Boys",
@@ -161,6 +169,7 @@ const i18n = {
     totalGuesses: "Celkem tipů", girl: "👧 Holčička", boy: "👦 Klouček",
     genderPred: "Předpovědi pohlaví",
     dateTitle: "Tipy na datum narození", dateSub: "Počet tipů pro každý den v říjnu",
+    past: "Už minulo", future: "Ještě možné",
     dueDate: "Termín", outsideOct: "Tipy mimo říjen:",
     tableToggle: "Zobrazit jako tabulku", dayCol: "Den", guessesCol: "Tipy",
     namesTitle: "Navržená jména", tabGirl: "👧 Holčičky", tabBoy: "👦 Kluci",
@@ -175,6 +184,7 @@ const i18n = {
     totalGuesses: "Всього прогнозів", girl: "👧 Дівчинка", boy: "👦 Хлопчик",
     genderPred: "Прогнози статі",
     dateTitle: "Прогнози дати народження", dateSub: "Кількість прогнозів на кожен день жовтня",
+    past: "Вже минуло", future: "Ще можливо",
     dueDate: "Очікувана дата", outsideOct: "Прогнози поза жовтнем:",
     tableToggle: "Показати таблицею", dayCol: "День", guessesCol: "Прогнози",
     namesTitle: "Запропоновані імена", tabGirl: "👧 Дівчатка", tabBoy: "👦 Хлопчики",
@@ -189,6 +199,7 @@ const i18n = {
     totalGuesses: "Totalt antall gjetninger", girl: "👧 Jente", boy: "👦 Gutt",
     genderPred: "Kjønnsprediksjoner",
     dateTitle: "Gjetninger på fødselsdato", dateSub: "Antall gjetninger for hver dag i oktober",
+    past: "Allerede passert", future: "Fortsatt mulig",
     dueDate: "Termin", outsideOct: "Gjettet utenfor oktober:",
     tableToggle: "Vis som tabell", dayCol: "Dag", guessesCol: "Gjetninger",
     namesTitle: "Foreslåtte navn", tabGirl: "👧 Jenter", tabBoy: "👦 Gutter",
@@ -215,7 +226,7 @@ function applyTranslations() {
   document.title = t('docTitle');
   [
     ['t-title','title'], ['t-subtitle','subtitle'], ['t-gender-pred','genderPred'],
-    ['t-date-title','dateTitle'], ['t-date-sub','dateSub'], ['t-table-toggle','tableToggle'],
+    ['t-date-title','dateTitle'], ['t-date-sub','dateSub'], ['t-past','past'], ['t-future','future'], ['t-table-toggle','tableToggle'],
     ['t-names-title','namesTitle'], ['tab-girl','tabGirl'], ['tab-boy','tabBoy'],
   ].forEach(([id, key]) => { document.getElementById(id).textContent = t(key); });
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active-lang', b.dataset.lang === lang));
@@ -310,6 +321,10 @@ function renderDateChart() {
   const yTop = Math.max(Math.ceil(max / step) * step, step);
   const y = v => m.top + plotH - (v / yTop) * plotH;
   const cx = day => m.left + slot * (day - 0.5);
+  // days before today are no longer possible birth dates
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const isPast = day => new Date(year, MONTH - 1, day) < today;
 
   const showLabel = slot >= 16 ? () => true
     : slot >= 9 ? d => d % 2 === 1
@@ -328,10 +343,10 @@ function renderDateChart() {
     const c = perDay[d];
     svg += `<g class="col" data-day="${d}">`;
     if (c > 0) {
-      svg += `<path class="bar" d="${columnPath(cx(d) - barW / 2, y(c), barW, y(0) - y(c))}" fill="var(--bar)"/>`;
+      svg += `<path class="bar" d="${columnPath(cx(d) - barW / 2, y(c), barW, y(0) - y(c))}" fill="${isPast(d) ? 'var(--bar-past)' : 'var(--bar)'}"/>`;
       if (c === max) svg += `<text x="${cx(d)}" y="${y(c) - 6}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text)">${c}</text>`;
     }
-    svg += `<rect class="hit" x="${cx(d) - slot / 2}" y="${m.top}" width="${slot}" height="${plotH + 18}" tabindex="0" aria-label="${escapeHtml(formatDayMonth(year, MONTH, d) + ': ' + t('guesses')(c))}"/>`;
+    svg += `<rect class="hit" x="${cx(d) - slot / 2}" y="${m.top}" width="${slot}" height="${plotH + 18}" tabindex="0" aria-label="${escapeHtml(formatDayMonth(year, MONTH, d) + ': ' + t('guesses')(c) + ' (' + t(isPast(d) ? 'past' : 'future') + ')')}"/>`;
     svg += `</g>`;
     if (showLabel(d) || d === DUE_DAY) {
       const due = d === DUE_DAY;
@@ -348,7 +363,7 @@ function renderDateChart() {
     const d = Number(g.dataset.day);
     wrap.querySelectorAll('.col.hover').forEach(el => el.classList.remove('hover'));
     g.classList.add('hover');
-    tip.innerHTML = `<strong>${escapeHtml(formatDayMonth(year, MONTH, d))}</strong> · ${escapeHtml(t('guesses')(perDay[d]))}`;
+    tip.innerHTML = `<strong>${escapeHtml(formatDayMonth(year, MONTH, d))}</strong> · ${escapeHtml(t('guesses')(perDay[d]))}<br>${escapeHtml(t(isPast(d) ? 'past' : 'future'))}`;
     const top = (perDay[d] > 0 ? y(perDay[d]) : y(0)) - (perDay[d] === max ? 16 : 0);
     const left = Math.min(Math.max(cx(d) / W * wrap.clientWidth, 70), wrap.clientWidth - 70);
     tip.style.left = `${left}px`;
