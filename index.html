@@ -399,7 +399,7 @@ function renderDateChart() {
   const max = Math.max(...perDay);
 
   const W = Math.max(wrap.clientWidth, 260), H = 220;
-  const m = { top: born ? 36 : 20, right: 4, bottom: 40, left: 26 };
+  const m = { top: born ? 36 : 20, right: 4, bottom: 48, left: 26 };
   const plotW = W - m.left - m.right, plotH = H - m.top - m.bottom;
   const slot = plotW / DAYS_IN_MONTH;
   const barW = Math.min(24, Math.max(slot - 2, 2));
@@ -448,7 +448,10 @@ function renderDateChart() {
       svg += `<text x="${cx(d)}" y="${m.top + plotH + 15}" text-anchor="middle" font-size="11" fill="${due ? 'var(--text)' : 'var(--text3)'}" font-weight="${due ? 600 : 400}">${d}</text>`;
     }
   }
-  svg += `<text x="${cx(DUE_DAY)}" y="${m.top + plotH + 32}" text-anchor="middle" font-size="11" fill="var(--text2)">▲ ${escapeHtml(t('dueDate'))}</text>`;
+  // due date marker: a triangle pointing up at the day, with the label below it
+  const markY = m.top + plotH + 21;
+  svg += `<path d="M${cx(DUE_DAY)},${markY}l5,7h-10z" fill="var(--text2)"/>`;
+  svg += `<text x="${cx(DUE_DAY)}" y="${markY + 19}" text-anchor="middle" font-size="11" fill="var(--text2)">${escapeHtml(t('dueDate'))}</text>`;
   svg += `</svg>`;
 
   wrap.querySelector('svg')?.remove();
