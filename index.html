@@ -60,7 +60,10 @@
   .chart-tip strong { font-weight: 600; }
   .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--text2); margin-bottom: 0.5rem; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .legend i, .key { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+  .key { margin-right: 6px; vertical-align: -1px; }
+  .key-past { background: var(--bar-past); }
+  .key-future { background: var(--bar); }
   .outside-note { font-size: 12px; color: var(--text2); margin-top: 0.75rem; }
   details { margin-top: 0.75rem; font-size: 13px; color: var(--text2); }
   summary { cursor: pointer; font-size: 12px; }
@@ -102,8 +105,8 @@
     <h3 id="t-date-title"></h3>
     <p class="card-sub" id="t-date-sub"></p>
     <div class="legend">
-      <span><i style="background:var(--bar-past)"></i><span id="t-past"></span></span>
-      <span><i style="background:var(--bar)"></i><span id="t-future"></span></span>
+      <span><i class="key-past"></i><span id="t-past"></span></span>
+      <span><i class="key-future"></i><span id="t-future"></span></span>
     </div>
     <div class="chart-wrap" id="date-chart">
       <div class="chart-tip" id="chart-tip"></div>
@@ -324,7 +327,10 @@ function renderDateChart() {
   // days before today are no longer possible birth dates
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const isPast = day => new Date(year, MONTH - 1, day) < today;
+  const isPastDate = (yy, mm, dd) => new Date(yy, mm - 1, dd) < today;
+  const isPast = day => isPastDate(year, MONTH, day);
+  const keyed = (yy, mm, dd) => `<i class="key ${isPastDate(yy, mm, dd) ? 'key-past' : 'key-future'}"></i>${escapeHtml(formatDayMonth(yy, mm, dd))}`;
+  const status = (yy, mm, dd) => escapeHtml(t(isPastDate(yy, mm, dd) ? 'past' : 'future'));
 
   const showLabel = slot >= 16 ? () => true
     : slot >= 9 ? d => d % 2 === 1
@@ -386,19 +392,19 @@ function renderDateChart() {
   document.getElementById('outside-note').innerHTML = outsideList.length
     ? `${escapeHtml(t('outsideOct'))} ${outsideList.map(([date, c]) => {
         const [yy, mm, dd] = date.split('-').map(Number);
-        return `${escapeHtml(formatDayMonth(yy, mm, dd))} (${c})`;
+        return `<span style="white-space:nowrap;">${keyed(yy, mm, dd)} (${c})</span>`;
       }).join(', ')}`
     : '';
 
   // table view
-  const rows = [];
-  for (let d = 1; d <= DAYS_IN_MONTH; d++) if (perDay[d]) rows.push(`<tr><td>${escapeHtml(formatDayMonth(year, MONTH, d))}</td><td>${perDay[d]}</td></tr>`);
-  outsideList.forEach(([date, c]) => {
+  const allDates = [...outsideList];
+  for (let d = 1; d <= DAYS_IN_MONTH; d++) if (perDay[d]) allDates.push([`${year}-${String(MONTH).padStart(2, '0')}-${String(d).padStart(2, '0')}`, perDay[d]]);
+  const rows = allDates.sort((a, b) => a[0].localeCompare(b[0])).map(([date, c]) => {
     const [yy, mm, dd] = date.split('-').map(Number);
-    rows.push(`<tr><td>${escapeHtml(formatDayMonth(yy, mm, dd))}</td><td>${c}</td></tr>`);
+    return `<tr><td>${keyed(yy, mm, dd)}</td><td>${c}</td><td>${status(yy, mm, dd)}</td></tr>`;
   });
   document.getElementById('date-table').innerHTML = rows.length
-    ? `<table><thead><tr><th>${escapeHtml(t('dayCol'))}</th><th>${escapeHtml(t('guessesCol'))}</th></tr></thead><tbody>${rows.join('')}</tbody></table>`
+    ? `<table><thead><tr><th>${escapeHtml(t('dayCol'))}</th><th>${escapeHtml(t('guessesCol'))}</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`
     : `<p class="empty" style="margin-top:0.5rem;">${escapeHtml(t('noDateGuesses'))}</p>`;
 }
 
