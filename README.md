@@ -15,13 +15,11 @@ const BABY = {
   date: '2026-10-19',  // birth date (required — this switches the page into "arrived" mode)
   time: '14:32',       // optional
   gender: 'boy',       // 'girl' or 'boy'
-  name: 'Jakub',       // optional
-  weight: '3.4 kg',    // optional
-  photo: 'baby.jpg',   // optional image file uploaded next to index.html
+  weight: '',          // optional, e.g. '3.4 kg'
 };
 ```
 
-The page then announces the birth, marks the birth day on the chart, shows how many guessed the gender and the exact day, how close the nearest guess was, and whether the baby's name was among the suggestions.
+The page then announces the birth ("It's a boy! · Born 19 October at 14:32"), marks the birth day on the chart and shows how many guessed the gender and the exact day and how close the nearest guess was. The baby's name is never shown.
 
 ## Database lock-down
 Run [`supabase/lock-down.sql`](supabase/lock-down.sql) once in the Supabase SQL Editor. It makes the table read-only for the public key and hides the guessers' names.

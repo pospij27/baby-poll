@@ -67,11 +67,8 @@
   .key-future { background: var(--bar); }
   .key-birth { background: var(--bar-birth); }
   .key-other { background: var(--bar-other); }
-  .baby-photo { display: block; width: 160px; height: 160px; object-fit: cover; border-radius: 50%; margin: 0 auto 12px; border: 3px solid var(--bg); }
   .announce { font-size: 15px; font-weight: 500; color: var(--text); margin: 2px 0 6px; }
   .result-line { font-size: 13px; font-weight: 500; color: var(--text); margin-top: 0.75rem; }
-  .name-note { font-size: 13px; color: var(--text); margin: -0.25rem 0 0.75rem; }
-  .entry-row.name-hit span:first-child { color: var(--text); font-weight: 600; }
   .outside-note { font-size: 12px; color: var(--text2); margin-top: 0.75rem; }
   details { margin-top: 0.75rem; font-size: 13px; color: var(--text2); }
   summary { cursor: pointer; font-size: 12px; }
@@ -97,7 +94,6 @@
 
 <main>
   <div class="hero">
-    <img class="baby-photo" id="baby-photo" alt="" hidden />
     <div class="hero-emoji" id="hero-emoji">👶</div>
     <h1 id="t-title"></h1>
     <p class="announce" id="announce" hidden></p>
@@ -128,7 +124,6 @@
 
   <div class="card">
     <h3 id="t-names-title"></h3>
-    <p class="name-note" id="name-note"></p>
     <div class="tab-row">
       <div class="tab active-tab" id="tab-girl" onclick="switchNamesTab('girl')"></div>
       <div class="tab" id="tab-boy" onclick="switchNamesTab('boy')"></div>
@@ -150,9 +145,7 @@ const BABY = {
   date: '',      // birth date, e.g. '2026-10-19'
   time: '',      // optional, e.g. '14:32'
   gender: '',    // 'girl' or 'boy'
-  name: '',      // optional, e.g. 'Jakub'
   weight: '',    // optional, e.g. '3.4 kg'
-  photo: '',     // optional image file next to this page, e.g. 'baby.jpg'
 };
 const born = Boolean(BABY.date);
 
@@ -186,15 +179,12 @@ const i18n = {
     guesses: c => `${c} guess${c === 1 ? '' : 'es'}`,
     votes: c => `${c} vote${c === 1 ? '' : 's'}`,
     itsGirl: "It's a girl! 👧", itsBoy: "It's a boy! 👦",
-    welcome: n => `Welcome, ${n}!`,
     bornOn: (d, time) => `Born ${d}${time ? ` at ${time}` : ''}`,
     subtitleBorn: "Thanks to everyone who played! Here's how you did.",
     genderRight: "Guessed the gender", exactDay: "Guessed the exact day",
     birthDay: "Birth day", otherDays: "Other guesses", exact: "Exact! 🎯",
     days: n => `${n} day${n === 1 ? '' : 's'}`, early: s => `${s} early`, late: s => `${s} late`,
     exactHit: g => `🎯 ${g} hit the exact day!`, closest: (d, g) => `Closest guess: ${d} off (${g})`,
-    nameSuggested: (n, v) => `⭐ The name ${n} was suggested — ${v}!`,
-    nameSecret: n => `🤫 Nobody suggested the name ${n} — well kept secret!`,
   },
   cs: {
     locale: 'cs-CZ', docTitle: 'Výsledky tipovačky 👶',
@@ -211,15 +201,12 @@ const i18n = {
     guesses: c => `${c} ${czechPlural(c, 'tip', 'tipy', 'tipů')}`,
     votes: c => `${c} ${czechPlural(c, 'hlas', 'hlasy', 'hlasů')}`,
     itsGirl: "Je to holčička! 👧", itsBoy: "Je to klouček! 👦",
-    welcome: n => `Vítej na světě, ${n}!`,
     bornOn: (d, time, g) => `${g === 'girl' ? 'Narodila se' : 'Narodil se'} ${d}${time ? ` v ${time}` : ''}`,
     subtitleBorn: "Díky všem, kdo tipovali! Takhle jste se trefili.",
     genderRight: "Uhodli pohlaví", exactDay: "Trefili přesný den",
     birthDay: "Den narození", otherDays: "Ostatní tipy", exact: "Přesně! 🎯",
     days: n => `${n} ${czechPlural(n, 'den', 'dny', 'dní')}`, early: s => `o ${s} dřív`, late: s => `o ${s} později`,
     exactHit: g => `🎯 ${g} na přesný den!`, closest: (d, g) => `Nejbližší tip: o ${d} vedle (${g})`,
-    nameSuggested: (n, v) => `⭐ Jméno ${n} bylo mezi návrhy — ${v}!`,
-    nameSecret: n => `🤫 Jméno ${n} nikdo nenavrhl — dobře utajené!`,
   },
   uk: {
     locale: 'uk-UA', docTitle: 'Результати опитування 👶',
@@ -236,15 +223,12 @@ const i18n = {
     guesses: c => `${c} ${slavicPlural(c, 'прогноз', 'прогнози', 'прогнозів')}`,
     votes: c => `${c} ${slavicPlural(c, 'голос', 'голоси', 'голосів')}`,
     itsGirl: "Це дівчинка! 👧", itsBoy: "Це хлопчик! 👦",
-    welcome: n => `Ласкаво просимо, ${n}!`,
     bornOn: (d, time, g) => `${g === 'girl' ? 'Народилася' : 'Народився'} ${d}${time ? ` о ${time}` : ''}`,
     subtitleBorn: "Дякуємо всім за участь! Ось як ви вгадали.",
     genderRight: "Вгадали стать", exactDay: "Вгадали точний день",
     birthDay: "День народження", otherDays: "Інші прогнози", exact: "Точно! 🎯",
     days: n => `${n} ${slavicPlural(n, 'день', 'дні', 'днів')}`, early: s => `на ${s} раніше`, late: s => `на ${s} пізніше`,
     exactHit: g => `🎯 ${g} — точно в ціль!`, closest: (d, g) => `Найближчий прогноз: різниця ${d} (${g})`,
-    nameSuggested: (n, v) => `⭐ Ім'я ${n} було серед пропозицій — ${v}!`,
-    nameSecret: n => `🤫 Ім'я ${n} ніхто не запропонував — добре збережений секрет!`,
   },
   no: {
     locale: 'nb-NO', docTitle: 'Resultater 👶',
@@ -261,15 +245,12 @@ const i18n = {
     guesses: c => `${c} gjetning${c === 1 ? '' : 'er'}`,
     votes: c => `${c} stemme${c === 1 ? '' : 'r'}`,
     itsGirl: "Det er en jente! 👧", itsBoy: "Det er en gutt! 👦",
-    welcome: n => `Velkommen, ${n}!`,
     bornOn: (d, time) => `Født ${d}${time ? ` kl. ${time}` : ''}`,
     subtitleBorn: "Takk til alle som var med! Slik gikk det.",
     genderRight: "Gjettet kjønnet", exactDay: "Traff dagen",
     birthDay: "Fødselsdag", otherDays: "Andre gjetninger", exact: "Helt riktig! 🎯",
     days: n => `${n} dag${n === 1 ? '' : 'er'}`, early: s => `${s} for tidlig`, late: s => `${s} for sent`,
     exactHit: g => `🎯 ${g} traff dagen!`, closest: (d, g) => `Nærmeste gjetning: ${d} unna (${g})`,
-    nameSuggested: (n, v) => `⭐ Navnet ${n} ble foreslått — ${v}!`,
-    nameSecret: n => `🤫 Ingen foreslo navnet ${n} — godt bevart hemmelighet!`,
   }
 };
 
@@ -305,21 +286,16 @@ function dateStatus(yy, mm, dd) {
 const STATE_FILL = { past: 'var(--bar-past)', future: 'var(--bar)', birth: 'var(--bar-birth)', other: 'var(--bar-other)' };
 const STATE_LABEL = { past: 'past', future: 'future', birth: 'birthDay', other: 'otherDays' };
 
-function normalizeName(n) { return n.trim().toLocaleLowerCase().normalize('NFD').replace(/\p{M}/gu, ''); }
-
 function applyTranslations() {
   document.documentElement.lang = lang;
-  const babyGender = t(BABY.gender === 'girl' ? 'itsGirl' : 'itsBoy');
-  const heading = !born ? t('title') : BABY.name ? t('welcome')(BABY.name) : babyGender;
+  const heading = born ? t(BABY.gender === 'girl' ? 'itsGirl' : 'itsBoy') : t('title');
   document.title = born ? `${heading} 👶` : t('docTitle');
   document.getElementById('t-title').textContent = heading;
   document.getElementById('t-subtitle').textContent = t(born ? 'subtitleBorn' : 'subtitle');
   const announce = document.getElementById('announce');
   announce.hidden = !born;
   if (born) {
-    const parts = [];
-    if (BABY.name && BABY.gender) parts.push(babyGender);
-    parts.push(t('bornOn')(formatDayMonth(...parseDate(BABY.date)), BABY.time, BABY.gender));
+    const parts = [t('bornOn')(formatDayMonth(...parseDate(BABY.date)), BABY.time, BABY.gender)];
     if (BABY.weight) parts.push(BABY.weight);
     announce.textContent = parts.join(' · ');
   }
@@ -547,20 +523,8 @@ function renderNamesTab() {
     if (raw) raw.split(',').forEach(n => { n = n.trim(); if (n) nameCounts[n] = (nameCounts[n] || 0) + 1; });
   });
   const sorted = Object.entries(nameCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  const babyName = born && BABY.name ? normalizeName(BABY.name) : null;
-  const note = document.getElementById('name-note');
-  note.textContent = '';
-  if (babyName) {
-    // how many guests suggested the chosen name (in the baby's gender list, or either list if gender is unset)
-    const hits = entries.filter(e => [BABY.gender !== 'boy' ? e.girl_names : '', BABY.gender !== 'girl' ? e.boy_names : '']
-      .join(',').split(',').some(n => n.trim() && normalizeName(n) === babyName)).length;
-    note.textContent = hits ? t('nameSuggested')(BABY.name, t('votes')(hits)) : t('nameSecret')(BABY.name);
-  }
   document.getElementById('names-stats').innerHTML = sorted.length
-    ? sorted.map(([n, c]) => {
-        const hit = babyName && normalizeName(n) === babyName;
-        return `<div class="entry-row${hit ? ' name-hit' : ''}"><span>${hit ? '⭐ ' : ''}${escapeHtml(n)}</span><span style="font-weight:500;color:var(--text);">${escapeHtml(t('votes')(c))}</span></div>`;
-      }).join('')
+    ? sorted.map(([n, c]) => `<div class="entry-row"><span>${escapeHtml(n)}</span><span style="font-weight:500;color:var(--text);">${escapeHtml(t('votes')(c))}</span></div>`).join('')
     : `<p class="empty">${escapeHtml(t('noNames'))}</p>`;
 }
 
@@ -570,14 +534,7 @@ new ResizeObserver(() => {
   resizeTimer = setTimeout(() => { if (entries) renderDateChart(); }, 100);
 }).observe(document.getElementById('date-chart'));
 
-if (born) {
-  document.getElementById('hero-emoji').textContent = '🎉';
-  if (BABY.photo) {
-    const img = document.getElementById('baby-photo');
-    img.src = BABY.photo; img.alt = BABY.name; img.hidden = false;
-    document.getElementById('hero-emoji').hidden = true;
-  }
-}
+if (born) document.getElementById('hero-emoji').textContent = '🎉';
 switchNamesTab(currentNamesTab);
 applyTranslations();
 render();
